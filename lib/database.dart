@@ -6,8 +6,11 @@ part 'database.g.dart';
 
 class Dragons extends Table {
   IntColumn get id => integer().autoIncrement()();
+
   TextColumn get name => text()();
+
   IntColumn get height => integer()();
+
   DateTimeColumn get createdAt => dateTime()();
 }
 
@@ -28,12 +31,14 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> create(String name, int height) async {
-    await this.into(dragons).insert(
-      DragonsCompanion.insert(
-          name: name,
-          height: height,
-          createdAt: DateTime.now()
-      )
-    );
+    await this
+        .into(dragons)
+        .insert(
+          DragonsCompanion.insert(
+            name: name,
+            height: height,
+            createdAt: DateTime.now(),
+          ),
+        );
   }
 }
