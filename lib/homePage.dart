@@ -23,99 +23,55 @@ class _MyHomePageState extends State<MyHomePage> {
     final imageWidth = screenSize.width;
     final imageHeight = screenSize.height;
 
-    return MaterialApp(
-      home: Scaffold(
-        // Esta é a tela que vai "puxar" da esquerda
-        drawer: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.3, // Ocupa 30% da tela
-          child: Drawer(
-            child: Column(
-              children: [
-                const DrawerHeader(
-                  decoration: BoxDecoration(color: Colors.blueAccent),
-                  child: Center(child: Text("Configurações", style: TextStyle(color: Colors.white),)),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.dark_mode),
-                  title: const Text("Tema Escuro"),
-                  onTap: () {},
-                ),
-              ],
-            ),
-          ),
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.white, Color.fromARGB(255, 128, 128, 128)],
         ),
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.white, Color.fromARGB(255, 128, 128, 128)],
+      ),
+      child: Stack(
+        children: [
+          // ------------------------ LOGO -----------------------------------
+          Center(
+            child: Image(
+              width: imageWidth * 2,
+              height: imageHeight / 2,
+              image: AssetImage("assets/logo.png"),
             ),
           ),
-          child: Stack(
+          Column(
             children: [
-              // ------------------------ LOGO -----------------------------------
-              Center(
-                child: Image(
-                  width: imageWidth * 2,
-                  height: imageHeight / 2,
-                  image: AssetImage("assets/logo.png"),
+              // ------------------- SEARCHBAR -------------------------------
+              MySearchBar(reload: _simularCarregamento,),
+              SizedBox(
+                // define o tamanho do espaço disponível para o listview
+                height: screenSize.height * ((84) / 100),
+                // ----------------- LIST VIEW -------------------------------
+                child: ListView.builder(
+                  itemCount: 10,
+                  itemBuilder: (context, index) => ProvisoryWidget(index: index),
                 ),
               ),
-              Column(
-                children: [
-                  // ------------------- SEARCHBAR -------------------------------
-                  MySearchBar(),
-
-                  SizedBox(
-                    // define o tamanho do espaço disponível para o listview
-                    height: screenSize.height * ((84) / 100),
-                    // ----------------- LIST VIEW -------------------------------
-                    child: ListView.builder(
-                      itemCount: 6,
-                      itemBuilder: (context, index) =>
-                          ProvisoryWidget(index: index),
-                    ),
-                  ),
-                ],
-              ),
-              //----------------------- BOTÃO CANTO ----------------------------
-              Positioned(
-                bottom: 30,
-                right: 30,
-                child: SizedBox(
-                  height: 80,
-                  width: 80,
-                  child: ElevatedButton(
-                    onPressed: () => _simularCarregamento(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.indigo,
-                      foregroundColor: Colors.white,
-                      fixedSize: const Size(80, 80),
-                      padding: EdgeInsets.zero,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.zero
-                      ),
-                    ),
-                    child: const Icon(Icons.add, size: 30),
-                  ),
-                ),
-              ),
-              if (_isLoading)
-                Container(
-                  color: Colors.black.withValues(alpha: 0.5), // Escurece a tela
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
             ],
           ),
-        ),
+          // como o código sabe lidar com isso? quer dizer, é literalmente
+          // um IF, não um widget, mas se cair dentro do IF, ele
+          // interpreta como um? Como exatamente? Tem alguma coisa haver
+          // com o Container, ele é o único widget ali
+          if (_isLoading)
+            Container(
+              color: Colors.black.withValues(alpha: 0.5), // Escurece a tela
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
