@@ -1,17 +1,37 @@
-import 'package:test01_db_interface/homePage.dart';
 import 'package:test01_db_interface/CreatePage.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:test01_db_interface/myWidgets.dart';
+import 'package:test01_db_interface/homePage.dart';
 import 'package:flutter/material.dart';
 import 'database.dart';
 
-void main() {
-  //WidgetsFlutterBinding.ensureInitialized();
-  //final database = AppDatabase();
+void main() async {
+  // 1. Garante que o Flutter inicializou os canais nativos
+  WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MyApp());
+  // 2. Inicializa o gerenciador de janelas
+  await windowManager.ensureInitialized();
+
+  // 3. Configurações da Janela
+  WindowOptions windowOptions = const WindowOptions(
+    size: Size(1200, 700),
+    backgroundColor: Colors.transparent,
+    titleBarStyle: TitleBarStyle.normal,
+  );
+
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.setTitle("Nome provisório");
+    await windowManager.focus();
+
+    // AQUI você bloqueia o redimensionamento:
+    await windowManager.setResizable(false);
+  });
+
+  runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget{
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
@@ -25,9 +45,7 @@ class MyApp extends StatelessWidget{
         ),
         body: MyHomePage(),
       ),
-      routes: {
-        '/createpage':(context) => CreatePage(),
-      },
+      routes: {'/createpage': (context) => CreatePage()},
     );
   }
 }

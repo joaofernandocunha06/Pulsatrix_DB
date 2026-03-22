@@ -10,6 +10,22 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool _isLoading = false;
+  List<(String, int, bool)> students = [
+    ("Arcélius Foreguiden Stormz", 20, true),
+    ("Chronos abysslute", 32, true),
+    ("Vércalébre", 11, false),
+    ("Zamazenta de Véritraz Sergate", 51, true),
+    ("Lúmela Novaluma", 23, false),
+    ("Tyrant", 15, true)
+  ];
+
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   void _simularCarregamento() async {
     setState(() => _isLoading = true);
@@ -35,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       child: Stack(
         children: [
-          // ------------------------ LOGO -----------------------------------
+          // -------------------------- LOGO -----------------------------------
           Center(
             child: Image(
               width: imageWidth * 2,
@@ -45,15 +61,26 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Column(
             children: [
-              // ------------------- SEARCHBAR -------------------------------
-              MySearchBar(reload: _simularCarregamento,),
+              // --------------------- SEARCHBAR -------------------------------
+              MySearchBar(reload: _simularCarregamento),
               SizedBox(
                 // define o tamanho do espaço disponível para o listview
                 height: screenSize.height * ((84) / 100),
-                // ----------------- LIST VIEW -------------------------------
-                child: ListView.builder(
-                  itemCount: 10,
-                  itemBuilder: (context, index) => ProvisoryWidget(index: index),
+                child: RawScrollbar(
+                  controller: _scrollController,
+                  thumbColor: Colors.indigo,
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  thickness: 20,
+                  radius: const Radius.circular(5),
+                  // ----------------- LIST VIEW -------------------------------
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    primary: false,
+                    itemCount: students.length,
+                    itemBuilder: (context, index) =>
+                        ProvisoryWidget(name: students[index].$1, age: students[index].$2, isStudent:  students[index].$3),
+                  ),
                 ),
               ),
             ],
@@ -66,9 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               color: Colors.black.withValues(alpha: 0.5), // Escurece a tela
               child: const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
+                child: CircularProgressIndicator(color: Colors.white),
               ),
             ),
         ],
