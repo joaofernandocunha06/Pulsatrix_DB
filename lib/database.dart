@@ -4,17 +4,14 @@ import 'package:path_provider/path_provider.dart';
 
 part 'database.g.dart';
 
-class Dragons extends Table {
+class Alunos extends Table {
   IntColumn get id => integer().autoIncrement()();
-
-  TextColumn get name => text()();
-
-  IntColumn get height => integer()();
-
-  DateTimeColumn get createdAt => dateTime()();
+  TextColumn get nome => text().withLength(min: 1, max: 50)();
+  IntColumn get idade => integer()();
+  BoolColumn get matricula => boolean().withDefault(const Constant(false))();
 }
 
-@DriftDatabase(tables: [Dragons])
+@DriftDatabase(tables: [Alunos])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
@@ -23,22 +20,24 @@ class AppDatabase extends _$AppDatabase {
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
-      name: 'dragon_database',
+      name: 'alunos_database',
       native: const DriftNativeOptions(
         databaseDirectory: getApplicationSupportDirectory,
       ),
     );
   }
 
-  Future<void> create(String name, int height) async {
-    await this
-        .into(dragons)
-        .insert(
-          DragonsCompanion.insert(
-            name: name,
-            height: height,
-            createdAt: DateTime.now(),
-          ),
-        );
+  Future<int> addAluno(String nome, int idade, bool matricula) {
+    return into(alunos).insert(
+      AlunosCompanion.insert(
+        nome: nome,
+        idade: idade,
+        matricula: Value(matricula),
+      ),
+    );
+  }
+
+  Future<List<Aluno>> findAlunos(String query) {
+    return (select(alunos)..where((t) => t.nome.like('$query%'))).get();
   }
 }

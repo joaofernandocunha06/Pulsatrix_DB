@@ -1,7 +1,7 @@
 import 'package:test01_db_interface/myWidgets.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'dart:async';
+import 'package:provider/provider.dart';
+import 'database.dart';
 
 class CreatePage extends StatefulWidget {
   const CreatePage({super.key});
@@ -12,13 +12,14 @@ class CreatePage extends StatefulWidget {
 
 class _CreatePageState extends State<CreatePage> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController nameController = TextEditingController();
+
+  final TextEditingController nameController = TextEditingController(); //tabela 1
   final TextEditingController numberController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController cpfController = TextEditingController();
   final TextEditingController rgController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
-  final TextEditingController ageController = TextEditingController();
+  final TextEditingController ageController = TextEditingController(); //tabela 1
   final TextEditingController nationalityController = TextEditingController();
 
   final TextEditingController nameRespController = TextEditingController();
@@ -26,7 +27,7 @@ class _CreatePageState extends State<CreatePage> {
   final TextEditingController cpfRespController = TextEditingController();
   final TextEditingController rgRespController = TextEditingController();
 
-  bool boolMatricula = false;
+  bool boolMatricula = false; // Tabela 1
   bool boolDemonstrativa = false;
   bool boolNecessidades = false;
 
@@ -39,13 +40,14 @@ class _CreatePageState extends State<CreatePage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final database = Provider.of<AppDatabase>(context);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title: Center(
           child: Text(
-            "C R E A T E  P A G E",
+            "C A D A S T R A R  A L U N O",
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -178,7 +180,7 @@ class _CreatePageState extends State<CreatePage> {
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(width: 3, color: Colors.orange),
-                          borderRadius: BorderRadius.all(Radius.circular(10))
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -213,27 +215,51 @@ class _CreatePageState extends State<CreatePage> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text("Aluno possui necessidades especiais?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),),
-                                    Checkbox(value: boolNecessidades, onChanged: (bool? value){
-                                      setState(() {
-                                        boolNecessidades = value!;
-                                      });
-                                    }
+                                    Text(
+                                      "Aluno possui necessidades especiais?",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
                                     ),
-                                    Text("Aluno fez aula demonstrativa?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),),
-                                    Checkbox(value: boolDemonstrativa, onChanged: (bool? value){
-                                      setState(() {
-                                        boolDemonstrativa = value!;
-                                      });
-                                    }
+                                    Checkbox(
+                                      value: boolNecessidades,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          boolNecessidades = value!;
+                                        });
+                                      },
                                     ),
-                                    Text("Aluno está matriculado?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),),
-                                    Checkbox(value: boolMatricula, onChanged: (bool? value){
-                                      setState(() {
-                                        boolMatricula = value!;
-                                      });
-                                      }
-                                    )
+                                    Text(
+                                      "Aluno fez aula demonstrativa?",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    Checkbox(
+                                      value: boolDemonstrativa,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          boolDemonstrativa = value!;
+                                        });
+                                      },
+                                    ),
+                                    Text(
+                                      "Aluno está matriculado?",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    Checkbox(
+                                      value: boolMatricula,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          boolMatricula = value!;
+                                        });
+                                      },
+                                    ),
                                   ],
                                 ),
                               ),
@@ -331,6 +357,44 @@ class _CreatePageState extends State<CreatePage> {
                         // -----------------------------------------------------
                       ),
                     ),
+                  // ------------------------- Button create -------------------
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 50, top: 20),
+                    child: SizedBox(
+                      width: 270,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: Colors.orange,
+                            width: 3
+                          )
+                        ),
+                        onPressed: () async {
+                          final String nome = nameController.text;
+                          final int idade =
+                              int.tryParse(ageController.text) ?? 0;
+                          final bool matriculado = boolMatricula;
+
+                          await database.addAluno(nome, idade, matriculado);
+
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Aluno cadastrado com sucesso!'),
+                              ),
+                            );
+                            Navigator.pop(
+                              context,
+                            ); // Volta para a tela anterior
+                          }
+                        },
+                        child: Text(
+                          "C R I A R",
+                          style: TextStyle(color: Colors.black, fontSize: 30),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
                 // -----------------------------------------------------------
               ),

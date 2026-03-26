@@ -1,5 +1,8 @@
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'database.dart';
+import 'package:provider/provider.dart';
+import 'database.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 
@@ -8,11 +11,21 @@ import 'dart:async';
 class MySearchBar extends StatefulWidget {
   final VoidCallback reload;
 
-  const MySearchBar({super.key, required this.reload});
+  // referencia função do pai
+  final Function(Future<List<Aluno>>) onPressed;
+
+  const MySearchBar({super.key, required this.reload, required this.onPressed});
 
   @override
   State<StatefulWidget> createState() => _MySearchBarState();
 }
+/*
+* Isso é uma nota minha, tenho que fazer depois
+* Vou definir o method de chamada aqui dentro...
+* ou talvez eu posso simplesmente já definir no botão
+* quando estiver sendo exibido na minha tela, não vai mais fazer diferença
+* vai ser chamado de qualquer jeito
+* */
 
 class _MySearchBarState extends State<MySearchBar> {
   final SearchController _searchController = SearchController();
@@ -105,7 +118,14 @@ class _MySearchBarState extends State<MySearchBar> {
                   height: 50,
                   width: 50,
                   child: ElevatedButton(
-                    onPressed: () => (),
+                    onPressed: () {
+                      final db = Provider.of<AppDatabase>(
+                        context,
+                        listen: false,
+                      );
+                      widget.reload();
+                      widget.onPressed(db.findAlunos(_searchController.text));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey,
                       // Cor do botão
@@ -154,15 +174,17 @@ class _MySearchBarState extends State<MySearchBar> {
   }
 }
 
-//---------------------------- Widget Provisory --------------------------------
+// ----------------------------- Widget Student --------------------------------
 
-class ProvisoryWidget extends StatelessWidget {
+class StudentWidget extends StatelessWidget {
+  final int id;
   final String name;
   final int age;
   final bool isStudent;
 
-  const ProvisoryWidget({
+  const StudentWidget({
     super.key,
+    required this.id,
     required this.name,
     required this.age,
     required this.isStudent,
@@ -176,6 +198,14 @@ class ProvisoryWidget extends StatelessWidget {
         height: 155,
         child: Container(
           decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(100),
+                spreadRadius: 5,
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
             color: Colors.white,
             border: Border.all(
               color: isStudent ? Colors.orange : Colors.grey,
@@ -188,63 +218,66 @@ class ProvisoryWidget extends StatelessWidget {
             children: [
               Padding(
                 padding: EdgeInsetsGeometry.all(5),
-                child: Container(
-                  //color: Colors.blue,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text("nome: $name", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      "nome: $name",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Padding(
                 padding: EdgeInsetsGeometry.all(5),
-                child: Container(
-                  //color: Colors.blue,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text("Idade: $age anos", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Idade: $age anos",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Padding(
                 padding: EdgeInsetsGeometry.all(5),
-                child: Container(
-                  //color: Colors.blue,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Colors.green, width: 3),
-                          ),
-                          onPressed: () {},
-                          child: Text(
-                            "ACESSAR",
-                            style: TextStyle(color: Colors.green),
-                          ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.green, width: 3),
+                        ),
+                        onPressed: () {},
+                        child: Text(
+                          "ACESSAR",
+                          style: TextStyle(color: Colors.green),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Colors.red, width: 3),
-                          ),
-                          onPressed: () {},
-                          child: Text(
-                            "REMOVER",
-                            style: TextStyle(color: Colors.red),
-                          ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.red, width: 3),
+                        ),
+                        onPressed: () {},
+                        child: Text(
+                          "REMOVER",
+                          style: TextStyle(color: Colors.red),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -293,13 +326,13 @@ class MyDrawer extends StatelessWidget {
           ),
           MyListTile(
             icon: Icon(Icons.last_page),
-            name: "NOVO ALUNO",
+            name: "CADASTRAR ALUNO",
             navigator: "createpage",
           ),
           MyListTile(
             icon: Icon(Icons.settings),
             name: "CONFIGURAÇÕES",
-            navigator: "createpage",
+            navigator: "configpage",
           ),
         ],
       ),

@@ -1,24 +1,23 @@
+import 'package:test01_db_interface/ConfigPage.dart';
 import 'package:test01_db_interface/CreatePage.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:test01_db_interface/myWidgets.dart';
 import 'package:test01_db_interface/homePage.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'database.dart';
 
 void main() async {
-  // 1. Garante que o Flutter inicializou os canais nativos
   WidgetsFlutterBinding.ensureInitialized();
-
-  // 2. Inicializa o gerenciador de janelas
   await windowManager.ensureInitialized();
 
-  // 3. Configurações da Janela
+  final database = AppDatabase();
+
   WindowOptions windowOptions = const WindowOptions(
     size: Size(1200, 700),
     backgroundColor: Colors.transparent,
     titleBarStyle: TitleBarStyle.normal,
   );
-
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.show();
     await windowManager.setTitle("Nome provisório");
@@ -28,7 +27,13 @@ void main() async {
     await windowManager.setResizable(false);
   });
 
-  runApp(const MyApp());
+  runApp(
+    Provider<AppDatabase>(
+      create: (context) => database,
+      dispose: (context, db) => db.close(), // Fecha o banco ao fechar o app
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -38,14 +43,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        // Esta é a tela que vai "puxar" da esquerda
         drawer: SizedBox(
           width: MediaQuery.of(context).size.width * 0.3, // Ocupa 30% da tela
           child: MyDrawer(),
         ),
         body: MyHomePage(),
       ),
-      routes: {'/createpage': (context) => CreatePage()},
+      routes: {
+        '/createpage': (context) => CreatePage(),
+        '/configpage': (context) => ConfigPage()
+      },
     );
   }
 }
