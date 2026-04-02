@@ -1,8 +1,8 @@
-import 'package:test01_db_interface/ConfigPage.dart';
-import 'package:test01_db_interface/CreatePage.dart';
+import 'package:test01_db_interface/config_page.dart';
+import 'package:test01_db_interface/create_page.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:test01_db_interface/myWidgets.dart';
-import 'package:test01_db_interface/homePage.dart';
+import 'package:test01_db_interface/my_widgets.dart';
+import 'package:test01_db_interface/home_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'database.dart';
@@ -20,7 +20,7 @@ void main() async {
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.show();
-    await windowManager.setTitle("Nome provisório");
+    await windowManager.setTitle("PulsatrixDB");
     await windowManager.focus();
 
     // AQUI você bloqueia o redimensionamento:
@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/createpage': (context) => CreatePage(),
-        '/configpage': (context) => ConfigPage()
+        '/configpage': (context) => ConfigPage(),
       },
     );
   }

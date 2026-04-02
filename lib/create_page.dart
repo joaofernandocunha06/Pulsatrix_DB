@@ -1,4 +1,4 @@
-import 'package:test01_db_interface/myWidgets.dart';
+import 'package:test01_db_interface/my_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'database.dart';
@@ -14,22 +14,28 @@ class _CreatePageState extends State<CreatePage> {
   final ScrollController _scrollController = ScrollController();
 
   final TextEditingController nameController = TextEditingController(); //tabela 1
-  final TextEditingController numberController = TextEditingController();
+  final TextEditingController numberController = TextEditingController(); //tabela 1
   final TextEditingController addressController = TextEditingController();
   final TextEditingController cpfController = TextEditingController();
   final TextEditingController rgController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
+  final TextEditingController dateController = TextEditingController(); //tabela 1
   final TextEditingController ageController = TextEditingController(); //tabela 1
   final TextEditingController nationalityController = TextEditingController();
+
+  final TextEditingController descriptionController = TextEditingController();
 
   final TextEditingController nameRespController = TextEditingController();
   final TextEditingController numberRespController = TextEditingController();
   final TextEditingController cpfRespController = TextEditingController();
   final TextEditingController rgRespController = TextEditingController();
+  final TextEditingController estagioController = TextEditingController();
+  final TextEditingController materialController = TextEditingController();
 
-  bool boolMatricula = false; // Tabela 1
-  bool boolDemonstrativa = false;
-  bool boolNecessidades = false;
+  final TextEditingController necessityController = TextEditingController();
+
+  bool boolMatricula = false; // tabela 1
+  bool boolDemonstrativa = false; //tabela 1
+  bool boolNecessidades = false; //tabela 1
 
   @override
   void dispose() {
@@ -40,11 +46,10 @@ class _CreatePageState extends State<CreatePage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final database = Provider.of<AppDatabase>(context);
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.deepPurple,
         title: Center(
           child: Text(
             "C A D A S T R A R  A L U N O",
@@ -55,7 +60,7 @@ class _CreatePageState extends State<CreatePage> {
       body: Center(
         child: RawScrollbar(
           controller: _scrollController,
-          thumbColor: Colors.indigo,
+          thumbColor: Color(0xffcf5eff),
           thumbVisibility: true,
           trackVisibility: true,
           thickness: 20,
@@ -74,7 +79,7 @@ class _CreatePageState extends State<CreatePage> {
                     padding: EdgeInsetsGeometry.only(top: 20),
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.orange, width: 3),
+                        border: Border.all(color: Colors.purple, width: 3),
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                       child: Column(
@@ -96,9 +101,10 @@ class _CreatePageState extends State<CreatePage> {
                               width: screenSize.width * 0.9,
                               height: screenSize.height * 0.12,
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   MyTextField(
-                                    capacity: 30,
+                                    capacity: 35,
                                     name: "Nome",
                                     controler: nameController,
                                     mask: null,
@@ -122,7 +128,7 @@ class _CreatePageState extends State<CreatePage> {
                                     mask: phoneFormatter,
                                   ),
                                   MyTextField(
-                                    capacity: 15,
+                                    capacity: 20,
                                     name: "Nacionalidade",
                                     controler: nationalityController,
                                     mask: null,
@@ -142,6 +148,7 @@ class _CreatePageState extends State<CreatePage> {
                               width: screenSize.width * 0.9,
                               height: screenSize.height * 0.12,
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   MyTextField(
                                     capacity: 14,
@@ -156,7 +163,7 @@ class _CreatePageState extends State<CreatePage> {
                                     mask: rgFormatter,
                                   ),
                                   MyTextField(
-                                    capacity: 50,
+                                    capacity: 60,
                                     name: "Endereço",
                                     controler: addressController,
                                     mask: null,
@@ -179,7 +186,7 @@ class _CreatePageState extends State<CreatePage> {
                       height: screenSize.height * 0.5,
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border.all(width: 3, color: Colors.orange),
+                          border: Border.all(width: 3, color: Colors.purple),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         child: Row(
@@ -191,13 +198,13 @@ class _CreatePageState extends State<CreatePage> {
                                 width: screenSize.width * 0.5,
                                 child: TextField(
                                   keyboardType: TextInputType.multiline,
-                                  maxLength: 500,
+                                  maxLength: 1000,
                                   maxLines: null,
                                   minLines: 10,
                                   decoration: InputDecoration(
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: Colors.orange,
+                                        color: Colors.purple,
                                         width: 3.0,
                                       ),
                                     ),
@@ -205,6 +212,7 @@ class _CreatePageState extends State<CreatePage> {
                                     labelText: "Descrição",
                                     border: OutlineInputBorder(),
                                   ),
+                                  controller: descriptionController,
                                 ),
                               ),
                             ),
@@ -230,6 +238,13 @@ class _CreatePageState extends State<CreatePage> {
                                         });
                                       },
                                     ),
+                                    if (boolNecessidades)
+                                      MyTextField(
+                                        capacity: 20,
+                                        name: "condição",
+                                        controler: necessityController,
+                                        mask: null,
+                                      ),
                                     Text(
                                       "Aluno fez aula demonstrativa?",
                                       style: TextStyle(
@@ -256,7 +271,19 @@ class _CreatePageState extends State<CreatePage> {
                                       value: boolMatricula,
                                       onChanged: (bool? value) {
                                         setState(() {
-                                          boolMatricula = value!;
+                                          boolMatricula =
+                                              value ??
+                                              false; // Atualiza o booleano de qualquer jeito
+
+                                          if (!boolMatricula) {
+                                            // Se caiu no false, limpa tudo
+                                            nameRespController.text = '';
+                                            numberRespController.text = '';
+                                            cpfRespController.text = '';
+                                            rgRespController.text = '';
+                                            estagioController.text = '';
+                                            materialController.text = '';
+                                          }
                                         });
                                       },
                                     ),
@@ -275,7 +302,7 @@ class _CreatePageState extends State<CreatePage> {
                       padding: EdgeInsetsGeometry.only(top: 20, bottom: 20),
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.orange, width: 3),
+                          border: Border.all(color: Colors.purple, width: 3),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         child: Column(
@@ -302,14 +329,14 @@ class _CreatePageState extends State<CreatePage> {
                                     MyTextField(
                                       capacity: 20,
                                       name: "Estágio JET",
-                                      controler: nameController,
+                                      controler: estagioController,
                                       mask: null,
                                     ),
                                     MyTextField(
                                       capacity: 20,
                                       name: "Material didático",
-                                      controler: dateController,
-                                      mask: dateFormatter,
+                                      controler: materialController,
+                                      mask: null,
                                     ),
                                   ],
                                 ),
@@ -325,7 +352,7 @@ class _CreatePageState extends State<CreatePage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     MyTextField(
-                                      capacity: 30,
+                                      capacity: 35,
                                       name: "Responsável",
                                       controler: nameRespController,
                                       mask: null,
@@ -364,28 +391,48 @@ class _CreatePageState extends State<CreatePage> {
                       width: 270,
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: Colors.orange,
-                            width: 3
-                          )
+                          side: BorderSide(color: Colors.purple, width: 3),
                         ),
                         onPressed: () async {
-                          final String nome = nameController.text;
-                          final int idade =
-                              int.tryParse(ageController.text) ?? 0;
-                          final bool matriculado = boolMatricula;
+                          final db = Provider.of<AppDatabase>(
+                            context,
+                            listen: false,
+                          );
 
-                          await database.addAluno(nome, idade, matriculado);
+                          await db.addAlunoFull(
+                            // Tabela 1
+                            nome: nameController.text,
+                            idade: int.tryParse(ageController.text) ?? 0,
+                            matricula: boolMatricula,
+                            demo: boolDemonstrativa,
+                            necessidade: boolNecessidades,
+                            condition: necessityController.text,
+                            data: dateController.text,
+                            numero: numberController.text,
+
+                            // Tabela 2
+                            address: addressController.text,
+                            cpf: cpfController.text,
+                            rg: rgController.text,
+                            nacionalidade: nationalityController.text,
+                            description: descriptionController.text,
+                            nameResp: nameRespController.text,
+                            numberResp: numberRespController.text,
+                            cpfResp: cpfRespController.text,
+                            rgResp: rgRespController.text,
+                            material: materialController.text,
+                            estagio: estagioController.text,
+                          );
 
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Aluno cadastrado com sucesso!'),
+                                content: Text(
+                                  'Aluno novo CADASTRADO com sucesso!',
+                                ),
                               ),
                             );
-                            Navigator.pop(
-                              context,
-                            ); // Volta para a tela anterior
+                            Navigator.pop(context);
                           }
                         },
                         child: Text(

@@ -1,20 +1,27 @@
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:flutter/material.dart';
-import 'database.dart';
+import 'package:test01_db_interface/update_page.dart';
 import 'package:provider/provider.dart';
-import 'database.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'database.dart';
 import 'dart:async';
 
 // --------------------------- Widget Search Bar -------------------------------
 
 class MySearchBar extends StatefulWidget {
   final VoidCallback reload;
+  final SearchController searchController;
 
   // referencia função do pai
   final Function(Future<List<Aluno>>) onPressed;
 
-  const MySearchBar({super.key, required this.reload, required this.onPressed});
+  const MySearchBar({
+    super.key,
+
+    required this.reload,
+    required this.onPressed,
+    required this.searchController,
+  });
 
   @override
   State<StatefulWidget> createState() => _MySearchBarState();
@@ -28,8 +35,6 @@ class MySearchBar extends StatefulWidget {
 * */
 
 class _MySearchBarState extends State<MySearchBar> {
-  final SearchController _searchController = SearchController();
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -74,7 +79,7 @@ class _MySearchBarState extends State<MySearchBar> {
                       Scaffold.of(context).openDrawer();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.indigo,
+                      backgroundColor: Colors.deepPurple,
                       // Cor do botão
                       foregroundColor: Colors.white,
                       // Cor do ícone/texto
@@ -93,10 +98,10 @@ class _MySearchBarState extends State<MySearchBar> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20, top: 10),
                 child: SearchBar(
-                  controller: _searchController,
+                  controller: widget.searchController,
                   trailing: [
                     IconButton(
-                      onPressed: () => _searchController.clear(),
+                      onPressed: () => widget.searchController.clear(),
                       icon: Icon(Icons.cancel),
                     ),
                   ],
@@ -124,16 +129,15 @@ class _MySearchBarState extends State<MySearchBar> {
                         listen: false,
                       );
                       widget.reload();
-                      widget.onPressed(db.findAlunos(_searchController.text));
+                      widget.onPressed(
+                        db.findAlunosBasic(widget.searchController.text),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey,
-                      // Cor do botão
                       foregroundColor: Colors.white,
-                      // Cor do ícone/texto
                       fixedSize: const Size(25, 25),
                       padding: EdgeInsets.zero,
-                      // LARGURA e ALTURA iguais para o quadrado
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(4)),
                       ),
@@ -149,20 +153,19 @@ class _MySearchBarState extends State<MySearchBar> {
                   height: 50,
                   width: 50,
                   child: ElevatedButton(
-                    onPressed: widget.reload,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                      // Cor do botão
+                      backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
-                      // Cor do ícone/texto
                       fixedSize: const Size(25, 25),
                       padding: EdgeInsets.zero,
-                      // LARGURA e ALTURA iguais para o quadrado
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(4)),
                       ),
                     ),
-                    child: const Icon(Icons.refresh, size: 30),
+                    onPressed: (){
+                      widget.onPressed(Future.value([]));
+                    },
+                    child: const Icon(Icons.close, size: 30),
                   ),
                 ),
               ),
@@ -179,15 +182,31 @@ class _MySearchBarState extends State<MySearchBar> {
 class StudentWidget extends StatelessWidget {
   final int id;
   final String name;
+  final bool necessidade;
+  final String condition;
+  final bool demo;
+  final String date;
   final int age;
   final bool isStudent;
+
+  final String search;
+  final Function(Future<List<Aluno>>) onPressed;
+  final Function(int, String) deleting;
 
   const StudentWidget({
     super.key,
     required this.id,
     required this.name,
+    required this.necessidade,
+    required this.condition,
+    required this.demo,
+    required this.date,
     required this.age,
     required this.isStudent,
+
+    required this.search,
+    required this.onPressed,
+    required this.deleting
   });
 
   @override
@@ -208,79 +227,137 @@ class StudentWidget extends StatelessWidget {
             ],
             color: Colors.white,
             border: Border.all(
-              color: isStudent ? Colors.orange : Colors.grey,
+              color: isStudent ? Colors.purple : Colors.white70,
               width: 8,
             ),
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsetsGeometry.all(5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "nome: $name",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsetsGeometry.all(5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Idade: $age anos",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsetsGeometry.all(5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.green, width: 3),
-                        ),
-                        onPressed: () {},
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsetsGeometry.all(4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 7, right: 6),
                         child: Text(
-                          "ACESSAR",
-                          style: TextStyle(color: Colors.green),
+                          "NOME: $name ",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.red, width: 3),
-                        ),
-                        onPressed: () {},
+                      Padding(
+                        padding: EdgeInsets.only(left: 2, right: 6),
                         child: Text(
-                          "REMOVER",
-                          style: TextStyle(color: Colors.red),
+                          "DATA: $date ",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: EdgeInsets.only(left: 2, right: 6),
+                        child: Text(
+                          "IDADE: $age ",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: EdgeInsetsGeometry.all(5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 7, right: 6),
+                        child: Text(
+                          "MATRICULA: " + (isStudent ? "SIM" : "NADA"),
+                          style: TextStyle(
+                            color: Colors.deepPurpleAccent,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 2, right: 6),
+                        child: Text(
+                          " NECESSIDADE: " + (necessidade ? "$condition" : "NÃO"),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 2, right: 6),
+                        child: Text(
+                          " DEMONSTRATIVA: " + (demo ? "SIM" : "NADA"),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsGeometry.all(5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(7.0),
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: Colors.green, width: 3),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UpdatePage(selfID: id),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "ACESSAR",
+                            style: TextStyle(color: Colors.green),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(7.0),
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: Colors.red, width: 3),
+                          ),
+                          onPressed: () {
+                            deleting(id, search);
+                          },
+                          child: Text(
+                            "REMOVER",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -300,7 +377,7 @@ class MyDrawer extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [Colors.blue, Colors.indigo]),
+              gradient: LinearGradient(colors: [Colors.purple, Colors.deepPurple]),
             ),
             child: Center(
               child: Column(
@@ -325,12 +402,12 @@ class MyDrawer extends StatelessWidget {
             ),
           ),
           MyListTile(
-            icon: Icon(Icons.last_page),
+            icon: Icon(Icons.last_page, color: Colors.white,),
             name: "CADASTRAR ALUNO",
             navigator: "createpage",
           ),
           MyListTile(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings, color: Colors.white,),
             name: "CONFIGURAÇÕES",
             navigator: "configpage",
           ),
@@ -371,13 +448,13 @@ class _MyTextFieldState extends State<MyTextField> {
           : EdgeInsets.only(left: 2, right: 12, bottom: 20),
       child: SizedBox(
         width: widget.capacity != null
-            ? screeSize.width * (widget.capacity! * 1.1) / 100
+            ? screeSize.width * (widget.capacity! * 0.9) / 100
             : 100,
         child: TextField(
           maxLength: widget.capacity, // Define o limite máximo
           decoration: InputDecoration(
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.orange, width: 3.0),
+              borderSide: BorderSide(color: Colors.purple, width: 3.0),
             ),
             labelStyle: TextStyle(color: Colors.black),
             labelText: widget.name,
@@ -432,13 +509,13 @@ class MyListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(5),
+      padding: EdgeInsets.all(20),
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.orange, Colors.yellowAccent],
+            colors: [Color(0xff732696), Color(0xffe57ff5)],
           ),
-          borderRadius: BorderRadius.all(Radius.circular(5)),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
         child: ListTile(
           leading: icon,
@@ -464,13 +541,20 @@ class RelogioWidget extends StatefulWidget {
 }
 
 class RelogioWidgetState extends State<RelogioWidget> {
+  Timer? _timer;
   String _timeString = "";
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
     // Atualiza a cada 1 segundo
-    Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
   }
 
   void _getTime() {
