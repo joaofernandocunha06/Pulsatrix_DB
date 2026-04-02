@@ -389,7 +389,7 @@ class _UpdatePageState extends State<UpdatePage> {
                                       capacity: 20,
                                       name: "Material didático",
                                       controler: materialController,
-                                      mask: dateFormatter,
+                                      mask: null,
                                     ),
                                   ],
                                 ),

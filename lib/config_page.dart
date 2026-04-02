@@ -1,7 +1,4 @@
-import 'package:test01_db_interface/my_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'database.dart';
 
 class ConfigPage extends StatefulWidget{
   const ConfigPage({super.key});
