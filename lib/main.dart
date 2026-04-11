@@ -1,5 +1,6 @@
 import 'package:test01_db_interface/config_page.dart';
 import 'package:test01_db_interface/create_page.dart';
+import 'package:test01_db_interface/birthday_page.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:test01_db_interface/my_widgets.dart';
 import 'package:test01_db_interface/home_page.dart';
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/createpage': (context) => CreatePage(),
         '/configpage': (context) => ConfigPage(),
+        '/birthpage': (context) => BirthdayPage()
       },
     );
   }

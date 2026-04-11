@@ -188,8 +188,9 @@ class StudentWidget extends StatelessWidget {
   final String date;
   final int age;
   final bool isStudent;
+  final bool access;
 
-  final String search;
+  final String? search;
   final Function(Future<List<Aluno>>) onPressed;
   final Function(int, String) deleting;
 
@@ -203,6 +204,7 @@ class StudentWidget extends StatelessWidget {
     required this.date,
     required this.age,
     required this.isStudent,
+    required this.access,
 
     required this.search,
     required this.onPressed,
@@ -318,41 +320,45 @@ class StudentWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(7.0),
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Colors.green, width: 3),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => UpdatePage(selfID: id),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            "ACESSAR",
-                            style: TextStyle(color: Colors.green),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(7.0),
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Colors.red, width: 3),
-                          ),
-                          onPressed: () {
-                            deleting(id, search);
-                          },
-                          child: Text(
-                            "REMOVER",
-                            style: TextStyle(color: Colors.red),
+                      if (access)
+                        // ----------------------- ACESSAR -----------------------
+                        Padding(
+                          padding: const EdgeInsets.all(7.0),
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: Colors.green, width: 3),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => UpdatePage(selfID: id),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "ACESSAR",
+                              style: TextStyle(color: Colors.green),
+                            ),
                           ),
                         ),
-                      ),
+                      if (access)
+                        // ----------------------- DELETAR -----------------------
+                        Padding(
+                          padding: const EdgeInsets.all(7.0),
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: Colors.red, width: 3),
+                            ),
+                            onPressed: () {
+                              deleting(id, search!);
+                            },
+                            child: Text(
+                              "REMOVER",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -407,9 +413,9 @@ class MyDrawer extends StatelessWidget {
             navigator: "createpage",
           ),
           MyListTile(
-            icon: Icon(Icons.settings, color: Colors.white,),
-            name: "CONFIGURAÇÕES",
-            navigator: "configpage",
+            icon: Icon(Icons.celebration, color: Colors.white,),
+            name: "ANIVERSARIANTES",
+            navigator: "birthpage",
           ),
         ],
       ),

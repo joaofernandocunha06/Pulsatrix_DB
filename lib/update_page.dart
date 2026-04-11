@@ -256,7 +256,7 @@ class _UpdatePageState extends State<UpdatePage> {
                                 width: screenSize.width * 0.5,
                                 child: TextField(
                                   keyboardType: TextInputType.multiline,
-                                  maxLength: 500,
+                                  maxLength: 1000,
                                   maxLines: null,
                                   minLines: 10,
                                   decoration: InputDecoration(
@@ -297,7 +297,7 @@ class _UpdatePageState extends State<UpdatePage> {
                                       },
                                     ),
                                     if (boolNecessidades)
-                                      MyTextField(capacity: 10, name: "condição", controler: necessityController, mask: null),
+                                      MyTextField(capacity: 20, name: "condição", controler: necessityController, mask: null),
                                     Text(
                                       "Aluno fez aula demonstrativa?",
                                       style: TextStyle(

@@ -154,6 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               date: aluno.data,
                               age: aluno.idade,
                               isStudent: aluno.matricula,
+                              access: true,
 
                               search: searchControllerHome.text,
 
