@@ -232,4 +232,13 @@ class AppDatabase extends _$AppDatabase {
       );
     });
   }
+
+  Future<List<Aluno>> findBirthday(String date) async {
+    return (
+        select(alunos)
+          ..where((t) => t.data.like("$date%"))
+          ..orderBy([(t) => OrderingTerm(expression: t.nome)])
+    )
+        .get();
+  }
 }
