@@ -701,6 +701,24 @@ class $AlunosDetalhesTable extends AlunosDetalhes
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _inicioMeta = const VerificationMeta('inicio');
+  @override
+  late final GeneratedColumn<String> inicio = GeneratedColumn<String>(
+    'inicio',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notasMeta = const VerificationMeta('notas');
+  @override
+  late final GeneratedColumn<String> notas = GeneratedColumn<String>(
+    'notas',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     alunoID,
@@ -715,6 +733,8 @@ class $AlunosDetalhesTable extends AlunosDetalhes
     rgResp,
     material,
     estagio,
+    inicio,
+    notas,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -825,6 +845,18 @@ class $AlunosDetalhesTable extends AlunosDetalhes
     } else if (isInserting) {
       context.missing(_estagioMeta);
     }
+    if (data.containsKey('inicio')) {
+      context.handle(
+        _inicioMeta,
+        inicio.isAcceptableOrUnknown(data['inicio']!, _inicioMeta),
+      );
+    }
+    if (data.containsKey('notas')) {
+      context.handle(
+        _notasMeta,
+        notas.isAcceptableOrUnknown(data['notas']!, _notasMeta),
+      );
+    }
     return context;
   }
 
@@ -882,6 +914,14 @@ class $AlunosDetalhesTable extends AlunosDetalhes
         DriftSqlType.string,
         data['${effectivePrefix}estagio'],
       )!,
+      inicio: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}inicio'],
+      ),
+      notas: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notas'],
+      ),
     );
   }
 
@@ -904,6 +944,8 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
   final String rgResp;
   final String material;
   final String estagio;
+  final String? inicio;
+  final String? notas;
   const AlunosDetalhe({
     required this.alunoID,
     required this.address,
@@ -917,6 +959,8 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
     required this.rgResp,
     required this.material,
     required this.estagio,
+    this.inicio,
+    this.notas,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -933,6 +977,12 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
     map['rg_resp'] = Variable<String>(rgResp);
     map['material'] = Variable<String>(material);
     map['estagio'] = Variable<String>(estagio);
+    if (!nullToAbsent || inicio != null) {
+      map['inicio'] = Variable<String>(inicio);
+    }
+    if (!nullToAbsent || notas != null) {
+      map['notas'] = Variable<String>(notas);
+    }
     return map;
   }
 
@@ -950,6 +1000,12 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
       rgResp: Value(rgResp),
       material: Value(material),
       estagio: Value(estagio),
+      inicio: inicio == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inicio),
+      notas: notas == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notas),
     );
   }
 
@@ -971,6 +1027,8 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
       rgResp: serializer.fromJson<String>(json['rgResp']),
       material: serializer.fromJson<String>(json['material']),
       estagio: serializer.fromJson<String>(json['estagio']),
+      inicio: serializer.fromJson<String?>(json['inicio']),
+      notas: serializer.fromJson<String?>(json['notas']),
     );
   }
   @override
@@ -989,6 +1047,8 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
       'rgResp': serializer.toJson<String>(rgResp),
       'material': serializer.toJson<String>(material),
       'estagio': serializer.toJson<String>(estagio),
+      'inicio': serializer.toJson<String?>(inicio),
+      'notas': serializer.toJson<String?>(notas),
     };
   }
 
@@ -1005,6 +1065,8 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
     String? rgResp,
     String? material,
     String? estagio,
+    Value<String?> inicio = const Value.absent(),
+    Value<String?> notas = const Value.absent(),
   }) => AlunosDetalhe(
     alunoID: alunoID ?? this.alunoID,
     address: address ?? this.address,
@@ -1018,6 +1080,8 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
     rgResp: rgResp ?? this.rgResp,
     material: material ?? this.material,
     estagio: estagio ?? this.estagio,
+    inicio: inicio.present ? inicio.value : this.inicio,
+    notas: notas.present ? notas.value : this.notas,
   );
   AlunosDetalhe copyWithCompanion(AlunosDetalhesCompanion data) {
     return AlunosDetalhe(
@@ -1039,6 +1103,8 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
       rgResp: data.rgResp.present ? data.rgResp.value : this.rgResp,
       material: data.material.present ? data.material.value : this.material,
       estagio: data.estagio.present ? data.estagio.value : this.estagio,
+      inicio: data.inicio.present ? data.inicio.value : this.inicio,
+      notas: data.notas.present ? data.notas.value : this.notas,
     );
   }
 
@@ -1056,7 +1122,9 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
           ..write('cpfResp: $cpfResp, ')
           ..write('rgResp: $rgResp, ')
           ..write('material: $material, ')
-          ..write('estagio: $estagio')
+          ..write('estagio: $estagio, ')
+          ..write('inicio: $inicio, ')
+          ..write('notas: $notas')
           ..write(')'))
         .toString();
   }
@@ -1075,6 +1143,8 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
     rgResp,
     material,
     estagio,
+    inicio,
+    notas,
   );
   @override
   bool operator ==(Object other) =>
@@ -1091,7 +1161,9 @@ class AlunosDetalhe extends DataClass implements Insertable<AlunosDetalhe> {
           other.cpfResp == this.cpfResp &&
           other.rgResp == this.rgResp &&
           other.material == this.material &&
-          other.estagio == this.estagio);
+          other.estagio == this.estagio &&
+          other.inicio == this.inicio &&
+          other.notas == this.notas);
 }
 
 class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
@@ -1107,6 +1179,8 @@ class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
   final Value<String> rgResp;
   final Value<String> material;
   final Value<String> estagio;
+  final Value<String?> inicio;
+  final Value<String?> notas;
   const AlunosDetalhesCompanion({
     this.alunoID = const Value.absent(),
     this.address = const Value.absent(),
@@ -1120,6 +1194,8 @@ class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
     this.rgResp = const Value.absent(),
     this.material = const Value.absent(),
     this.estagio = const Value.absent(),
+    this.inicio = const Value.absent(),
+    this.notas = const Value.absent(),
   });
   AlunosDetalhesCompanion.insert({
     this.alunoID = const Value.absent(),
@@ -1134,6 +1210,8 @@ class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
     required String rgResp,
     required String material,
     required String estagio,
+    this.inicio = const Value.absent(),
+    this.notas = const Value.absent(),
   }) : address = Value(address),
        cpf = Value(cpf),
        rg = Value(rg),
@@ -1158,6 +1236,8 @@ class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
     Expression<String>? rgResp,
     Expression<String>? material,
     Expression<String>? estagio,
+    Expression<String>? inicio,
+    Expression<String>? notas,
   }) {
     return RawValuesInsertable({
       if (alunoID != null) 'aluno_i_d': alunoID,
@@ -1172,6 +1252,8 @@ class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
       if (rgResp != null) 'rg_resp': rgResp,
       if (material != null) 'material': material,
       if (estagio != null) 'estagio': estagio,
+      if (inicio != null) 'inicio': inicio,
+      if (notas != null) 'notas': notas,
     });
   }
 
@@ -1188,6 +1270,8 @@ class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
     Value<String>? rgResp,
     Value<String>? material,
     Value<String>? estagio,
+    Value<String?>? inicio,
+    Value<String?>? notas,
   }) {
     return AlunosDetalhesCompanion(
       alunoID: alunoID ?? this.alunoID,
@@ -1202,6 +1286,8 @@ class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
       rgResp: rgResp ?? this.rgResp,
       material: material ?? this.material,
       estagio: estagio ?? this.estagio,
+      inicio: inicio ?? this.inicio,
+      notas: notas ?? this.notas,
     );
   }
 
@@ -1244,6 +1330,12 @@ class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
     if (estagio.present) {
       map['estagio'] = Variable<String>(estagio.value);
     }
+    if (inicio.present) {
+      map['inicio'] = Variable<String>(inicio.value);
+    }
+    if (notas.present) {
+      map['notas'] = Variable<String>(notas.value);
+    }
     return map;
   }
 
@@ -1261,7 +1353,9 @@ class AlunosDetalhesCompanion extends UpdateCompanion<AlunosDetalhe> {
           ..write('cpfResp: $cpfResp, ')
           ..write('rgResp: $rgResp, ')
           ..write('material: $material, ')
-          ..write('estagio: $estagio')
+          ..write('estagio: $estagio, ')
+          ..write('inicio: $inicio, ')
+          ..write('notas: $notas')
           ..write(')'))
         .toString();
   }
@@ -1675,6 +1769,8 @@ typedef $$AlunosDetalhesTableCreateCompanionBuilder =
       required String rgResp,
       required String material,
       required String estagio,
+      Value<String?> inicio,
+      Value<String?> notas,
     });
 typedef $$AlunosDetalhesTableUpdateCompanionBuilder =
     AlunosDetalhesCompanion Function({
@@ -1690,6 +1786,8 @@ typedef $$AlunosDetalhesTableUpdateCompanionBuilder =
       Value<String> rgResp,
       Value<String> material,
       Value<String> estagio,
+      Value<String?> inicio,
+      Value<String?> notas,
     });
 
 final class $$AlunosDetalhesTableReferences
@@ -1783,6 +1881,16 @@ class $$AlunosDetalhesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get inicio => $composableBuilder(
+    column: $table.inicio,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notas => $composableBuilder(
+    column: $table.notas,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$AlunosTableFilterComposer get alunoID {
     final $$AlunosTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -1871,6 +1979,16 @@ class $$AlunosDetalhesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get inicio => $composableBuilder(
+    column: $table.inicio,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notas => $composableBuilder(
+    column: $table.notas,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$AlunosTableOrderingComposer get alunoID {
     final $$AlunosTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -1943,6 +2061,12 @@ class $$AlunosDetalhesTableAnnotationComposer
   GeneratedColumn<String> get estagio =>
       $composableBuilder(column: $table.estagio, builder: (column) => column);
 
+  GeneratedColumn<String> get inicio =>
+      $composableBuilder(column: $table.inicio, builder: (column) => column);
+
+  GeneratedColumn<String> get notas =>
+      $composableBuilder(column: $table.notas, builder: (column) => column);
+
   $$AlunosTableAnnotationComposer get alunoID {
     final $$AlunosTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -2009,6 +2133,8 @@ class $$AlunosDetalhesTableTableManager
                 Value<String> rgResp = const Value.absent(),
                 Value<String> material = const Value.absent(),
                 Value<String> estagio = const Value.absent(),
+                Value<String?> inicio = const Value.absent(),
+                Value<String?> notas = const Value.absent(),
               }) => AlunosDetalhesCompanion(
                 alunoID: alunoID,
                 address: address,
@@ -2022,6 +2148,8 @@ class $$AlunosDetalhesTableTableManager
                 rgResp: rgResp,
                 material: material,
                 estagio: estagio,
+                inicio: inicio,
+                notas: notas,
               ),
           createCompanionCallback:
               ({
@@ -2037,6 +2165,8 @@ class $$AlunosDetalhesTableTableManager
                 required String rgResp,
                 required String material,
                 required String estagio,
+                Value<String?> inicio = const Value.absent(),
+                Value<String?> notas = const Value.absent(),
               }) => AlunosDetalhesCompanion.insert(
                 alunoID: alunoID,
                 address: address,
@@ -2050,6 +2180,8 @@ class $$AlunosDetalhesTableTableManager
                 rgResp: rgResp,
                 material: material,
                 estagio: estagio,
+                inicio: inicio,
+                notas: notas,
               ),
           withReferenceMapper: (p0) => p0
               .map(

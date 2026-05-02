@@ -23,6 +23,7 @@ class _CreatePageState extends State<CreatePage> {
   final TextEditingController nationalityController = TextEditingController();
 
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController notasController = TextEditingController();
 
   final TextEditingController nameRespController = TextEditingController();
   final TextEditingController numberRespController = TextEditingController();
@@ -30,6 +31,7 @@ class _CreatePageState extends State<CreatePage> {
   final TextEditingController rgRespController = TextEditingController();
   final TextEditingController estagioController = TextEditingController();
   final TextEditingController materialController = TextEditingController();
+  final TextEditingController inicioController = TextEditingController();
 
   final TextEditingController necessityController = TextEditingController();
 
@@ -283,6 +285,8 @@ class _CreatePageState extends State<CreatePage> {
                                             rgRespController.text = '';
                                             estagioController.text = '';
                                             materialController.text = '';
+                                            notasController.text = '';
+                                            inicioController.text = '';
                                           }
                                         });
                                       },
@@ -299,7 +303,7 @@ class _CreatePageState extends State<CreatePage> {
                   // ------------------------ inscrição ----------------------
                   if (boolMatricula)
                     Padding(
-                      padding: EdgeInsetsGeometry.only(top: 20, bottom: 20),
+                      padding: EdgeInsetsGeometry.only(left: 30, right: 30, top: 10),
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.purple, width: 3),
@@ -326,6 +330,12 @@ class _CreatePageState extends State<CreatePage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    MyTextField(
+                                      capacity: 10,
+                                      name: "data de início",
+                                      controler: inicioController,
+                                      mask: dateFormatter,
+                                    ),
                                     MyTextField(
                                       capacity: 20,
                                       name: "Estágio JET",
@@ -379,6 +389,26 @@ class _CreatePageState extends State<CreatePage> {
                                 ),
                               ),
                             ),
+                            Padding(padding: EdgeInsets.only(left: 50, right: 50, top: 10, bottom: 10),
+                                child: TextField(
+                                  keyboardType: TextInputType.multiline,
+                                  maxLength: 500,
+                                  maxLines: null,
+                                  minLines: 3,
+                                  decoration: InputDecoration(
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.purple,
+                                        width: 3.0,
+                                      ),
+                                    ),
+                                    labelStyle: TextStyle(color: Colors.black),
+                                    labelText: "Notas",
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  controller: notasController,
+                                ),
+                            )
                           ],
                         ),
                         // -----------------------------------------------------
@@ -422,6 +452,8 @@ class _CreatePageState extends State<CreatePage> {
                             rgResp: rgRespController.text,
                             material: materialController.text,
                             estagio: estagioController.text,
+                            inicio: inicioController.text,
+                            notas: notasController.text
                           );
 
                           if (context.mounted) {

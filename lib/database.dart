@@ -31,6 +31,8 @@ class AlunosDetalhes extends Table {
   TextColumn get rgResp => text().withLength(max: 12)();
   TextColumn get material => text().withLength(max: 20)();
   TextColumn get estagio => text().withLength(max: 20)();
+  TextColumn get inicio => text().nullable()();
+  TextColumn get notas => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {alunoID};
@@ -53,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -63,8 +65,12 @@ class AppDatabase extends _$AppDatabase {
       },
       onUpgrade: (m, from, to) async {
         if (from < 2) {
-          // Se o usuário já tinha a versão 1, cria a nova tabela de detalhes
           await m.createTable(alunosDetalhes);
+        }
+
+        if (from < 3) {
+          await m.addColumn(alunosDetalhes, alunosDetalhes.inicio);
+          await m.addColumn(alunosDetalhes, alunosDetalhes.notas);
         }
       },
     );
@@ -103,6 +109,8 @@ class AppDatabase extends _$AppDatabase {
     required String rgResp,
     required String material,
     required String estagio,
+    required String inicio,
+    required String notas
 
   }) async {
     await transaction(() async {
@@ -135,6 +143,8 @@ class AppDatabase extends _$AppDatabase {
           rgResp: rgResp,
           material: material,
           estagio: estagio,
+          inicio: Value(inicio),
+          notas: Value(notas)
         ),
       );
     });
@@ -147,6 +157,25 @@ class AppDatabase extends _$AppDatabase {
           ..orderBy([(t) => OrderingTerm(expression: t.nome)])
     )
         .get();
+  }
+
+  Future<List<Aluno>> findAlunosByResponsavel(String query) async {
+    final typedQuery = select(alunos).join([
+      innerJoin(
+        alunosDetalhes,
+        alunosDetalhes.alunoID.equalsExp(alunos.id),
+      ),
+    ]);
+
+    typedQuery.where(alunosDetalhes.nameResp.like('$query%'));
+
+    // Ordenar pelo nome do aluno para manter o padrão
+    typedQuery.orderBy([OrderingTerm(expression: alunos.nome)]);
+
+    final result = await typedQuery.get();
+
+    // Mapeamos o resultado do join para retornar apenas a tabela Aluno
+    return result.map((row) => row.readTable(alunos)).toList();
   }
 
   Future<AlunoCompleto?> findAlunoFull(int idAluno) async {
@@ -200,6 +229,8 @@ class AppDatabase extends _$AppDatabase {
     required String rgResp,
     required String material,
     required String estagio,
+    required String inicio,
+    required String notas,
   }) async {
     await transaction(() async {
       await (update(alunos)..where((t) => t.id.equals(idAluno))).write(
@@ -228,6 +259,8 @@ class AppDatabase extends _$AppDatabase {
           rgResp: Value(rgResp),
           material: Value(material),
           estagio: Value(estagio),
+          inicio: Value(inicio),
+          notas: Value(notas),
         ),
       );
     });
