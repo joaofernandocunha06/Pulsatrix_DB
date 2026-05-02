@@ -35,10 +35,13 @@ class MySearchBar extends StatefulWidget {
 * */
 
 class _MySearchBarState extends State<MySearchBar> {
+
+  bool searchState = false;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 2),
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -105,7 +108,7 @@ class _MySearchBarState extends State<MySearchBar> {
                       icon: Icon(Icons.cancel),
                     ),
                   ],
-                  hintText: "Pesquisar...",
+                  hintText: searchState ? "Pesquisar responsável..." : "Pesquisar aluno...",
                   backgroundColor: const WidgetStatePropertyAll(
                     Color.fromARGB(255, 222, 222, 222),
                   ),
@@ -113,6 +116,46 @@ class _MySearchBarState extends State<MySearchBar> {
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(9),
                     ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsGeometry.only(left: 10, bottom: 20, top: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 3
+                    ),
+                    borderRadius: BorderRadius.circular(5)
+                  ),
+                  height: 55,
+                  width: 90,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Transform.scale(
+                        scale: 0.85,
+                        child: Checkbox(
+                            value: searchState,
+                            visualDensity: VisualDensity.compact,
+                            onChanged: (bool? value){
+                              setState(() {
+                                searchState = value!;
+                              });
+                            },
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return Colors.green; // Cor quando marcado
+                            }
+                            return Colors.grey; // Cor da borda quando desmarcado
+                          }),
+                          checkColor: Colors.white, // Cor do ícone (o "v")
+                        ),
+                      ),
+                      Text("RESPONSÁVEL", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),)
+                    ],
                   ),
                 ),
               ),
@@ -129,9 +172,17 @@ class _MySearchBarState extends State<MySearchBar> {
                         listen: false,
                       );
                       widget.reload();
-                      widget.onPressed(
-                        db.findAlunosBasic(widget.searchController.text),
-                      );
+                      //--------------- modificar aqui -----------------
+                      if (searchState){
+                        widget.onPressed(
+                          db.findAlunosByResponsavel(widget.searchController.text),
+                        );
+                      }
+                      else {
+                        widget.onPressed(
+                          db.findAlunosBasic(widget.searchController.text),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey,
@@ -284,7 +335,7 @@ class StudentWidget extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 7, right: 6),
                         child: Text(
-                          "MATRICULA: " + (isStudent ? "SIM" : "NADA"),
+                          "MATRICULA: " + (isStudent ? "SIM" : "NÃO"),
                           style: TextStyle(
                             color: Colors.deepPurpleAccent,
                             fontSize: 20,
@@ -305,7 +356,7 @@ class StudentWidget extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 2, right: 6),
                         child: Text(
-                          " DEMONSTRATIVA: " + (demo ? "SIM" : "NADA"),
+                          " DEMONSTRATIVA: " + (demo ? "SIM" : "NÃO"),
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

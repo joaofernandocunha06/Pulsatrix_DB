@@ -128,9 +128,7 @@ class _birthdayPageState extends State<BirthdayPage> {
                       ),
                   );
                 }
-
-                // Caso padrão (estado inicial ou vazio)
-                return const Center(child: Text('Inicie uma pesquisa.'));
+                return Text("");
               },
             ),
           ),
