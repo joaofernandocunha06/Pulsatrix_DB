@@ -10,6 +10,8 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+// -----------------------------------------------------------------------------
+
 class _MyHomePageState extends State<MyHomePage> {
   bool _isLoading = false;
   bool _confirmDelete = false;
@@ -57,13 +59,13 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Stack(
         children: [
           // -------------------------- LOGO -----------------------------------
-          /*Center(
+          Center(
             child: Image(
               width: screenSize.width * 2,
               height: screenSize.height / 2,
               image: AssetImage("assets/logo.png"),
             ),
-          ),*/
+          ),
           Column(
             children: [
               // --------------------- SEARCHBAR -------------------------------
@@ -155,6 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               age: aluno.idade,
                               isStudent: aluno.matricula,
                               access: true,
+                              isNotEnrolled: aluno.isNotEnrolled,
 
                               search: searchControllerHome.text,
 

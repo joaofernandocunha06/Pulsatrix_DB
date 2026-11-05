@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:path_provider/path_provider.dart';
 import 'package:test01_db_interface/config_page.dart';
 import 'package:test01_db_interface/create_page.dart';
 import 'package:test01_db_interface/birthday_page.dart';
@@ -7,8 +10,26 @@ import 'package:test01_db_interface/home_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'database.dart';
+import 'dart:io';
+
+Future<void> salvarConfig(Map<String, dynamic> content) async {
+  final directory = await getApplicationSupportDirectory();
+  final file = File('${directory.path}/app_config.json');
+  String jsonString = jsonEncode(content);
+
+  if (await file.exists() != true) {
+    file.writeAsString(jsonString);
+  }
+}
 
 void main() async {
+
+  final Map<String, dynamic> dados = {
+    "options": []
+  };
+
+  await salvarConfig(dados);
+
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
@@ -36,6 +57,8 @@ void main() async {
     ),
   );
 }
+
+// -----------------------------------------------------------------------------
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

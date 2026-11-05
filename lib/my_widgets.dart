@@ -35,7 +35,6 @@ class MySearchBar extends StatefulWidget {
 * */
 
 class _MySearchBarState extends State<MySearchBar> {
-
   bool searchState = false;
 
   @override
@@ -108,7 +107,9 @@ class _MySearchBarState extends State<MySearchBar> {
                       icon: Icon(Icons.cancel),
                     ),
                   ],
-                  hintText: searchState ? "Pesquisar responsável..." : "Pesquisar aluno...",
+                  hintText: searchState
+                      ? "Pesquisar responsável..."
+                      : "Pesquisar aluno...",
                   backgroundColor: const WidgetStatePropertyAll(
                     Color.fromARGB(255, 222, 222, 222),
                   ),
@@ -123,11 +124,8 @@ class _MySearchBarState extends State<MySearchBar> {
                 padding: EdgeInsetsGeometry.only(left: 10, bottom: 20, top: 10),
                 child: Container(
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 3
-                    ),
-                    borderRadius: BorderRadius.circular(5)
+                    border: Border.all(color: Colors.grey, width: 3),
+                    borderRadius: BorderRadius.circular(5),
                   ),
                   height: 55,
                   width: 90,
@@ -137,24 +135,35 @@ class _MySearchBarState extends State<MySearchBar> {
                       Transform.scale(
                         scale: 0.85,
                         child: Checkbox(
-                            value: searchState,
-                            visualDensity: VisualDensity.compact,
-                            onChanged: (bool? value){
-                              setState(() {
-                                searchState = value!;
-                              });
-                            },
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                          value: searchState,
+                          visualDensity: VisualDensity.compact,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              searchState = value!;
+                            });
+                          },
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          fillColor: WidgetStateProperty.resolveWith<Color>((
+                            states,
+                          ) {
                             if (states.contains(WidgetState.selected)) {
                               return Colors.green; // Cor quando marcado
                             }
-                            return Colors.grey; // Cor da borda quando desmarcado
+                            return Colors
+                                .grey; // Cor da borda quando desmarcado
                           }),
                           checkColor: Colors.white, // Cor do ícone (o "v")
                         ),
                       ),
-                      Text("RESPONSÁVEL", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),)
+                      Text(
+                        "RESPONSÁVEL",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -173,12 +182,13 @@ class _MySearchBarState extends State<MySearchBar> {
                       );
                       widget.reload();
                       //--------------- modificar aqui -----------------
-                      if (searchState){
+                      if (searchState) {
                         widget.onPressed(
-                          db.findAlunosByResponsavel(widget.searchController.text),
+                          db.findAlunosByResponsavel(
+                            widget.searchController.text,
+                          ),
                         );
-                      }
-                      else {
+                      } else {
                         widget.onPressed(
                           db.findAlunosBasic(widget.searchController.text),
                         );
@@ -213,7 +223,7 @@ class _MySearchBarState extends State<MySearchBar> {
                         borderRadius: BorderRadius.all(Radius.circular(4)),
                       ),
                     ),
-                    onPressed: (){
+                    onPressed: () {
                       widget.onPressed(Future.value([]));
                     },
                     child: const Icon(Icons.close, size: 30),
@@ -240,6 +250,7 @@ class StudentWidget extends StatelessWidget {
   final int age;
   final bool isStudent;
   final bool access;
+  final bool isNotEnrolled;
 
   final String? search;
   final Function(Future<List<Aluno>>) onPressed;
@@ -256,14 +267,16 @@ class StudentWidget extends StatelessWidget {
     required this.age,
     required this.isStudent,
     required this.access,
+    required this.isNotEnrolled,
 
-    required this.search,
+    this.search,
     required this.onPressed,
-    required this.deleting
+    required this.deleting,
   });
 
   @override
   Widget build(BuildContext context) {
+
     return Padding(
       padding: EdgeInsetsGeometry.only(top: 5, bottom: 5, left: 60, right: 80),
       child: SizedBox(
@@ -280,139 +293,201 @@ class StudentWidget extends StatelessWidget {
             ],
             color: Colors.white,
             border: Border.all(
-              color: isStudent ? Colors.purple : Colors.white70,
+              color: isStudent && !isNotEnrolled
+                  ? Colors.purple
+                  : !isStudent
+                  ? Colors.white70
+                  : Colors.red,
               width: 8,
             ),
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Stack(
               children: [
-                Padding(
-                  padding: EdgeInsetsGeometry.all(4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 7, right: 6),
-                        child: Text(
-                          "NOME: $name ",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 2, right: 6),
-                        child: Text(
-                          "DATA: $date ",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 2, right: 6),
-                        child: Text(
-                          "IDADE: $age ",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsetsGeometry.all(5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 7, right: 6),
-                        child: Text(
-                          "MATRICULA: " + (isStudent ? "SIM" : "NÃO"),
-                          style: TextStyle(
-                            color: Colors.deepPurpleAccent,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 2, right: 6),
-                        child: Text(
-                          " NECESSIDADE: " + (necessidade ? "$condition" : "NÃO"),
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 2, right: 6),
-                        child: Text(
-                          " DEMONSTRATIVA: " + (demo ? "SIM" : "NÃO"),
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsetsGeometry.all(5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (access)
-                        // ----------------------- ACESSAR -----------------------
-                        Padding(
-                          padding: const EdgeInsets.all(7.0),
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.green, width: 3),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsGeometry.all(4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 7, right: 6),
+                            child: Text(
+                              "NOME: $name ",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => UpdatePage(selfID: id),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 2, right: 6),
+                            child: Text(
+                              "DATA: $date ",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 2, right: 6),
+                            child: Text(
+                              "IDADE: $age ",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsetsGeometry.all(5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 7, right: 6),
+                            child: Text(
+                              "MATRICULA: " + (isStudent ? "SIM" : "NÃO"),
+                              style: TextStyle(
+                                color: Colors.deepPurpleAccent,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 2, right: 6),
+                            child: Text(
+                              " NECESSIDADE: " + (necessidade ? "$condition" : "NÃO"),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 2, right: 6),
+                            child: Text(
+                              " DEMONSTRATIVA: " + (demo ? "SIM" : "NÃO"),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsetsGeometry.all(5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (access)
+                            // ----------------------- ACESSAR -----------------------
+                            Padding(
+                              padding: const EdgeInsets.all(7.0),
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  side: BorderSide(
+                                    color: Color.fromARGB(255, 13, 140, 40),
+                                    width: 3,
+                                  ),
                                 ),
-                              );
-                            },
-                            child: Text(
-                              "ACESSAR",
-                              style: TextStyle(color: Colors.green),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          UpdatePage(selfID: id),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "ACESSAR",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      if (access)
-                        // ----------------------- DELETAR -----------------------
-                        Padding(
-                          padding: const EdgeInsets.all(7.0),
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.red, width: 3),
+                          if (access)
+                            // ----------------------- DELETAR -----------------------
+                            Padding(
+                              padding: const EdgeInsets.all(7.0),
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  side: BorderSide(
+                                      color: Color.fromARGB(255, 135, 18, 9),
+                                      width: 3),
+                                ),
+                                onPressed: () {
+                                  deleting(id, search!);
+                                },
+                                child: Text(
+                                  "REMOVER",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
                             ),
-                            onPressed: () {
-                              deleting(id, search!);
-                            },
-                            child: Text(
-                              "REMOVER",
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
+                if (isStudent && isNotEnrolled)
+                  Positioned(
+                    bottom: !access ? 0 : 45,
+                    right: 25,
+                    child: Container(
+                      width: 100,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red, width: 3),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "EX ALUNO",
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                else if (isStudent && !isNotEnrolled)
+                  Positioned(
+                    bottom: !access ? 0 : 45,
+                    right: 25,
+                    child: Container(
+                      width: 100,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.purple, width: 3),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "ATIVO",
+                          style: TextStyle(
+                            color: Colors.purple,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -434,7 +509,9 @@ class MyDrawer extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [Colors.purple, Colors.deepPurple]),
+              gradient: LinearGradient(
+                colors: [Colors.purple, Colors.deepPurple],
+              ),
             ),
             child: Center(
               child: Column(
@@ -459,14 +536,19 @@ class MyDrawer extends StatelessWidget {
             ),
           ),
           MyListTile(
-            icon: Icon(Icons.last_page, color: Colors.white,),
+            icon: Icon(Icons.last_page, color: Colors.white),
             name: "CADASTRAR ALUNO",
             navigator: "createpage",
           ),
           MyListTile(
-            icon: Icon(Icons.celebration, color: Colors.white,),
+            icon: Icon(Icons.celebration, color: Colors.white),
             name: "ANIVERSARIANTES",
             navigator: "birthpage",
+          ),
+          MyListTile(
+            icon: Icon(Icons.settings, color: Colors.white),
+            name: "CONFIGURAÇÕES",
+            navigator: "configpage",
           ),
         ],
       ),
@@ -479,15 +561,15 @@ class MyDrawer extends StatelessWidget {
 class MyTextField extends StatefulWidget {
   final int? capacity;
   final String name;
-  final TextEditingController controler;
+  final TextEditingController controller;
   final MaskTextInputFormatter? mask;
 
   const MyTextField({
     super.key,
-    required this.capacity,
     required this.name,
-    required this.controler,
-    required this.mask,
+    required this.controller,
+    this.mask,
+    this.capacity,
   });
 
   @override
@@ -495,6 +577,7 @@ class MyTextField extends StatefulWidget {
 }
 
 class _MyTextFieldState extends State<MyTextField> {
+
   @override
   Widget build(BuildContext context) {
     final screeSize = MediaQuery.of(context).size;
@@ -518,7 +601,95 @@ class _MyTextFieldState extends State<MyTextField> {
             border: OutlineInputBorder(),
           ),
           inputFormatters: widget.mask != null ? [widget.mask!] : [],
-          controller: widget.controler,
+          controller: widget.controller,
+        ),
+      ),
+    );
+  }
+}
+
+class MyTextFieldAge extends StatefulWidget{
+  final TextEditingController controller;
+  final TextEditingController ageController;
+
+  const MyTextFieldAge({
+    super.key,
+    required this.controller,
+    required this.ageController,
+  });
+
+  @override
+  State<StatefulWidget> createState() => _MyTextFieldAgeState();
+}
+
+class _MyTextFieldAgeState extends State<MyTextFieldAge> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+
+    // 2. Ouvinte: Fica de olho para saber quando o usuário clicou fora do campo
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        // Se perdeu o foco, executa a ação passando o texto atual
+          try {
+            DateTime dataAtual = DateTime.now();
+            DateTime dataWidget = DateFormat("dd/MM/yyyy").parse(widget.controller.text);
+
+            int idade = dataAtual.year - dataWidget.year;
+
+            // 2. Verifica se o aniversário deste ano ainda não aconteceu
+            if (dataAtual.month < dataWidget.month ||
+                (dataAtual.month == dataWidget.month && dataAtual.day < dataWidget.day)) {
+              idade--;
+            }
+
+            widget.ageController.text = idade.toString();
+          }
+          catch (e){
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Insira uma data válida',
+                ),
+              ),
+            );
+          }
+        }
+    });
+  }
+
+  @override
+  void dispose() {
+    // 3. O SEGREDO DA MEMÓRIA: Quando o campo some da tela,
+    // esses dois comandos limpam a RAM imediatamente.
+    widget.controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Padding(
+      padding: EdgeInsets.only(left: 2, right: 12),
+      child: SizedBox(
+        width: 120,
+        child: TextField(
+          maxLength: 10, // Define o limite máximo
+          decoration: InputDecoration(
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.purple, width: 3.0),
+            ),
+            labelStyle: TextStyle(color: Colors.black),
+            labelText: "DD/MM/AAAA",
+            border: OutlineInputBorder(),
+          ),
+          inputFormatters: [dateFormatter],
+          controller: widget.controller,
+          focusNode: _focusNode,
         ),
       ),
     );
@@ -576,7 +747,7 @@ class MyListTile extends StatelessWidget {
         ),
         child: ListTile(
           leading: icon,
-          title: Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(name, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
           onTap: () {
             Navigator.pushNamed(context, '/$navigator');
           },

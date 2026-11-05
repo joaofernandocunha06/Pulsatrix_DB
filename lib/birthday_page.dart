@@ -109,9 +109,7 @@ class _birthdayPageState extends State<BirthdayPage> {
                               age: aluno.idade,
                               isStudent: aluno.matricula,
                               access: false,
-
-                              search: null,
-
+                              isNotEnrolled: aluno.isNotEnrolled,
                               //possivelmente remover
                               deleting: (idRecebido, searchRecebido) {
                                 setState(() {});

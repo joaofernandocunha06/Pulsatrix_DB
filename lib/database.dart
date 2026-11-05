@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'package:drift/native.dart';
+import 'package:path/path.dart' as p;
+import 'package:file_picker/file_picker.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -6,32 +10,54 @@ part 'database.g.dart';
 
 class Alunos extends Table {
   IntColumn get id => integer().autoIncrement()();
+
   TextColumn get nome => text().withLength(min: 1, max: 50)();
+
   IntColumn get idade => integer()();
+
   BoolColumn get matricula => boolean().withDefault(const Constant(false))();
+
   BoolColumn get demo => boolean().withDefault(const Constant(false))();
+
   BoolColumn get necessidade => boolean().withDefault(const Constant(false))();
+
   TextColumn get condition => text().withLength(max: 20)();
+
   TextColumn get data => text()();
+
   TextColumn get numero => text()();
+
+  BoolColumn get isNotEnrolled => boolean().withDefault(const Constant(false))();
 }
 
 class AlunosDetalhes extends Table {
-  IntColumn get alunoID => integer().references(Alunos, #id, onDelete: KeyAction.cascade)();
+  IntColumn get alunoID =>
+      integer().references(Alunos, #id, onDelete: KeyAction.cascade)();
+
   TextColumn get address => text().withLength(max: 60)();
+
   TextColumn get cpf => text().withLength(max: 14)();
+
   TextColumn get rg => text().withLength(max: 12)();
+
   TextColumn get nacionalidade => text().withLength(max: 20)();
 
   TextColumn get description => text().withLength(max: 1000)();
 
   TextColumn get nameResp => text().withLength(max: 35)();
+
   TextColumn get numberResp => text().withLength(max: 12)();
+
   TextColumn get cpfResp => text().withLength(max: 14)();
+
   TextColumn get rgResp => text().withLength(max: 12)();
+
   TextColumn get material => text().withLength(max: 20)();
+
   TextColumn get estagio => text().withLength(max: 20)();
+
   TextColumn get inicio => text().nullable()();
+
   TextColumn get notas => text().nullable()();
 
   @override
@@ -44,18 +70,16 @@ class AlunoCompleto {
   final Aluno aluno;
   final AlunosDetalhe detalhe;
 
-  AlunoCompleto({
-    required this.aluno,
-    required this.detalhe,
-  });
+  AlunoCompleto({required this.aluno, required this.detalhe});
 }
 
+// ---- ALTERAR ESSA PARTE -----------------------------------------------------
 @DriftDatabase(tables: [Alunos, AlunosDetalhes])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -69,6 +93,12 @@ class AppDatabase extends _$AppDatabase {
         }
 
         if (from < 3) {
+          await m.addColumn(alunosDetalhes, alunosDetalhes.inicio);
+          await m.addColumn(alunosDetalhes, alunosDetalhes.notas);
+        }
+
+        if (from < 4) {
+          await m.addColumn(alunos, alunos.isNotEnrolled);
           await m.addColumn(alunosDetalhes, alunosDetalhes.inicio);
           await m.addColumn(alunosDetalhes, alunosDetalhes.notas);
         }
@@ -86,7 +116,6 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> addAlunoFull({
-
     // Dados da Tabela 1
     required String nome,
     required int idade,
@@ -110,7 +139,8 @@ class AppDatabase extends _$AppDatabase {
     required String material,
     required String estagio,
     required String inicio,
-    required String notas
+    required String notas,
+    required bool isNotEnrolled
 
   }) async {
     await transaction(() async {
@@ -125,13 +155,15 @@ class AppDatabase extends _$AppDatabase {
           condition: condition,
           data: data,
           numero: numero,
+          isNotEnrolled: Value(isNotEnrolled)
         ),
       );
 
       // 2. Salva na segunda tabela usando o ID que acabou de ser criado
       await into(alunosDetalhes).insert(
         AlunosDetalhesCompanion.insert(
-          alunoID: Value(novoId), // Aqui passamos o ID real direto!
+          alunoID: Value(novoId),
+          // Aqui passamos o ID real direto!
           address: address,
           cpf: cpf,
           rg: rg,
@@ -144,27 +176,22 @@ class AppDatabase extends _$AppDatabase {
           material: material,
           estagio: estagio,
           inicio: Value(inicio),
-          notas: Value(notas)
+          notas: Value(notas),
         ),
       );
     });
   }
 
   Future<List<Aluno>> findAlunosBasic(String query) {
-    return (
-        select(alunos)
+    return (select(alunos)
           ..where((t) => t.nome.like('$query%'))
-          ..orderBy([(t) => OrderingTerm(expression: t.nome)])
-    )
+          ..orderBy([(t) => OrderingTerm(expression: t.nome)]))
         .get();
   }
 
   Future<List<Aluno>> findAlunosByResponsavel(String query) async {
     final typedQuery = select(alunos).join([
-      innerJoin(
-        alunosDetalhes,
-        alunosDetalhes.alunoID.equalsExp(alunos.id),
-      ),
+      innerJoin(alunosDetalhes, alunosDetalhes.alunoID.equalsExp(alunos.id)),
     ]);
 
     typedQuery.where(alunosDetalhes.nameResp.like('$query%'));
@@ -180,12 +207,8 @@ class AppDatabase extends _$AppDatabase {
 
   Future<AlunoCompleto?> findAlunoFull(int idAluno) async {
     final query = select(alunos).join([
-      innerJoin(
-        alunosDetalhes,
-        alunosDetalhes.alunoID.equalsExp(alunos.id),
-      ),
-    ])
-      ..where(alunos.id.equals(idAluno));
+      innerJoin(alunosDetalhes, alunosDetalhes.alunoID.equalsExp(alunos.id)),
+    ])..where(alunos.id.equals(idAluno));
 
     final row = await query.getSingleOrNull();
 
@@ -194,10 +217,7 @@ class AppDatabase extends _$AppDatabase {
     final aluno = row.readTable(alunos);
     final detalhe = row.readTable(alunosDetalhes);
 
-    return AlunoCompleto(
-      aluno: aluno,
-      detalhe: detalhe,
-    );
+    return AlunoCompleto(aluno: aluno, detalhe: detalhe);
   }
 
   Future<void> deleteAlunos(int idAluno) async {
@@ -231,6 +251,8 @@ class AppDatabase extends _$AppDatabase {
     required String estagio,
     required String inicio,
     required String notas,
+    required bool isNotEnrolled
+
   }) async {
     await transaction(() async {
       await (update(alunos)..where((t) => t.id.equals(idAluno))).write(
@@ -243,10 +265,13 @@ class AppDatabase extends _$AppDatabase {
           condition: Value(condition),
           data: Value(data),
           numero: Value(numero),
+          isNotEnrolled: Value(isNotEnrolled)
         ),
       );
 
-      await (update(alunosDetalhes)..where((t) => t.alunoID.equals(idAluno))).write(
+      await (update(
+        alunosDetalhes,
+      )..where((t) => t.alunoID.equals(idAluno))).write(
         AlunosDetalhesCompanion(
           address: Value(address),
           cpf: Value(cpf),
@@ -267,11 +292,96 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<Aluno>> findBirthday(String date) async {
-    return (
-        select(alunos)
+    return (select(alunos)
           ..where((t) => t.data.like("$date%"))
-          ..orderBy([(t) => OrderingTerm(expression: t.nome)])
-    )
+          ..orderBy([(t) => OrderingTerm(expression: t.nome)]))
         .get();
   }
+
+  Future<String> importarBackup() async {
+    try {
+      final resultado = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['sqlite'],
+        allowMultiple: false,
+      );
+
+      final caminhoBackup = resultado?.files.single.path;
+
+      if (caminhoBackup == null) {
+        return 'Usuário cancelou a seleção';
+      }
+
+      final bancoBackup = AppDatabase(
+        NativeDatabase(File(caminhoBackup)),
+      );
+
+      final alunosBackup =
+      await bancoBackup.select(bancoBackup.alunos).get();
+
+      final detalhesBackup =
+      await bancoBackup.select(bancoBackup.alunosDetalhes).get();
+
+      await transaction(() async {
+
+        await delete(alunosDetalhes).go();
+        await delete(alunos).go();
+
+        final Map<int, int> mapaIds = {};
+
+        for (final aluno in alunosBackup) {
+
+          final novoId = await into(alunos).insert(
+            AlunosCompanion.insert(
+              nome: aluno.nome,
+              idade: aluno.idade,
+              matricula: Value(aluno.matricula),
+              demo: Value(aluno.demo),
+              necessidade: Value(aluno.necessidade),
+              condition: aluno.condition,
+              data: aluno.data,
+              numero: aluno.numero,
+              isNotEnrolled: Value(aluno.isNotEnrolled),
+            ),
+          );
+
+          mapaIds[aluno.id] = novoId;
+        }
+
+        for (final detalhe in detalhesBackup) {
+
+          final novoAlunoId = mapaIds[detalhe.alunoID];
+
+          if (novoAlunoId == null) continue;
+
+          await into(alunosDetalhes).insert(
+            AlunosDetalhesCompanion.insert(
+              alunoID: Value(novoAlunoId),
+              address: detalhe.address,
+              cpf: detalhe.cpf,
+              rg: detalhe.rg,
+              nacionalidade: detalhe.nacionalidade,
+              description: detalhe.description,
+              nameResp: detalhe.nameResp,
+              numberResp: detalhe.numberResp,
+              cpfResp: detalhe.cpfResp,
+              rgResp: detalhe.rgResp,
+              material: detalhe.material,
+              estagio: detalhe.estagio,
+              inicio: Value(detalhe.inicio),
+              notas: Value(detalhe.notas),
+            ),
+          );
+        }
+      });
+
+      await bancoBackup.close();
+
+      return 'Backup importado com sucesso';
+
+    } catch (e) {
+      return 'Erro ao importar backup: $e';
+    }
+  }
+
 }

@@ -38,6 +38,7 @@ class _CreatePageState extends State<CreatePage> {
   bool boolMatricula = false; // tabela 1
   bool boolDemonstrativa = false; //tabela 1
   bool boolNecessidades = false; //tabela 1
+  bool isNotEnrolled = false;
 
   @override
   void dispose() {
@@ -83,6 +84,15 @@ class _CreatePageState extends State<CreatePage> {
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.purple, width: 3),
                         borderRadius: BorderRadius.all(Radius.circular(10)),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(100),
+                            spreadRadius: 5,
+                            blurRadius: 10,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
                       child: Column(
                         children: [
@@ -108,32 +118,40 @@ class _CreatePageState extends State<CreatePage> {
                                   MyTextField(
                                     capacity: 35,
                                     name: "Nome",
-                                    controler: nameController,
-                                    mask: null,
+                                    controller: nameController,
                                   ),
-                                  MyTextField(
-                                    capacity: 10,
-                                    name: "DD/MM/AAAA",
-                                    controler: dateController,
-                                    mask: dateFormatter,
+                                  MyTextFieldAge(
+                                    controller: dateController,
+                                    ageController: ageController,
                                   ),
-                                  MyTextField(
-                                    capacity: null,
-                                    name: "Idade",
-                                    controler: ageController,
-                                    mask: null,
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 2, right: 12, bottom: 20),
+                                    child: SizedBox(
+                                      width: 80,
+                                      child: TextField(
+                                        decoration: InputDecoration(
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(color: Colors.purple, width: 3.0),
+                                          ),
+                                          labelStyle: TextStyle(color: Colors.black),
+                                          labelText: "idade",
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        readOnly: true,
+                                        controller: ageController,
+                                      ),
+                                    ),
                                   ),
                                   MyTextField(
                                     capacity: 12,
                                     name: "Celular",
-                                    controler: numberController,
+                                    controller: numberController,
                                     mask: phoneFormatter,
                                   ),
                                   MyTextField(
                                     capacity: 20,
                                     name: "Nacionalidade",
-                                    controler: nationalityController,
-                                    mask: null,
+                                    controller: nationalityController,
                                   ),
                                 ],
                               ),
@@ -155,20 +173,19 @@ class _CreatePageState extends State<CreatePage> {
                                   MyTextField(
                                     capacity: 14,
                                     name: "CPF",
-                                    controler: cpfController,
+                                    controller: cpfController,
                                     mask: cpfFormatter,
                                   ),
                                   MyTextField(
                                     capacity: 12,
                                     name: "RG",
-                                    controler: rgController,
+                                    controller: rgController,
                                     mask: rgFormatter,
                                   ),
                                   MyTextField(
                                     capacity: 60,
                                     name: "Endereço",
-                                    controler: addressController,
-                                    mask: null,
+                                    controller: addressController,
                                   ),
                                 ],
                               ),
@@ -190,6 +207,15 @@ class _CreatePageState extends State<CreatePage> {
                         decoration: BoxDecoration(
                           border: Border.all(width: 3, color: Colors.purple),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(100),
+                              spreadRadius: 5,
+                              blurRadius: 10,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -232,7 +258,7 @@ class _CreatePageState extends State<CreatePage> {
                                         fontSize: 15,
                                       ),
                                     ),
-                                    Checkbox(
+                                    Switch(
                                       value: boolNecessidades,
                                       onChanged: (bool? value) {
                                         setState(() {
@@ -244,8 +270,7 @@ class _CreatePageState extends State<CreatePage> {
                                       MyTextField(
                                         capacity: 20,
                                         name: "condição",
-                                        controler: necessityController,
-                                        mask: null,
+                                        controller: necessityController,
                                       ),
                                     Text(
                                       "Aluno fez aula demonstrativa?",
@@ -254,7 +279,7 @@ class _CreatePageState extends State<CreatePage> {
                                         fontSize: 15,
                                       ),
                                     ),
-                                    Checkbox(
+                                    Switch(
                                       value: boolDemonstrativa,
                                       onChanged: (bool? value) {
                                         setState(() {
@@ -263,13 +288,13 @@ class _CreatePageState extends State<CreatePage> {
                                       },
                                     ),
                                     Text(
-                                      "Aluno está matriculado?",
+                                      "Aluno tem matricula?",
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15,
                                       ),
                                     ),
-                                    Checkbox(
+                                    Switch(
                                       value: boolMatricula,
                                       onChanged: (bool? value) {
                                         setState(() {
@@ -303,11 +328,24 @@ class _CreatePageState extends State<CreatePage> {
                   // ------------------------ inscrição ----------------------
                   if (boolMatricula)
                     Padding(
-                      padding: EdgeInsetsGeometry.only(left: 30, right: 30, top: 10),
+                      padding: EdgeInsetsGeometry.only(
+                        left: 30,
+                        right: 30,
+                        top: 10,
+                      ),
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.purple, width: 3),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(100),
+                              spreadRadius: 5,
+                              blurRadius: 10,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
                         ),
                         child: Column(
                           children: [
@@ -333,20 +371,68 @@ class _CreatePageState extends State<CreatePage> {
                                     MyTextField(
                                       capacity: 10,
                                       name: "data de início",
-                                      controler: inicioController,
+                                      controller: inicioController,
                                       mask: dateFormatter,
                                     ),
                                     MyTextField(
                                       capacity: 20,
                                       name: "Estágio JET",
-                                      controler: estagioController,
-                                      mask: null,
+                                      controller: estagioController,
                                     ),
                                     MyTextField(
                                       capacity: 20,
                                       name: "Material didático",
-                                      controler: materialController,
-                                      mask: null,
+                                      controller: materialController,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsetsGeometry.only(
+                                        bottom: 18,
+                                      ),
+                                      child: Container(
+                                        width: 160,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.red,
+                                            width: 2.5,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            5,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsetsGeometry.only(
+                                                left: 10,
+                                              ),
+                                              child: Text(
+                                                "EX ALUNO",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsetsGeometry.only(
+                                                left: 10,
+                                              ),
+                                              child: Switch(
+                                                activeTrackColor: Colors.red,
+                                                value: isNotEnrolled,
+                                                onChanged: (bool? value) {
+                                                  setState(() {
+                                                    isNotEnrolled = value!;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -364,51 +450,56 @@ class _CreatePageState extends State<CreatePage> {
                                     MyTextField(
                                       capacity: 35,
                                       name: "Responsável",
-                                      controler: nameRespController,
-                                      mask: null,
+                                      controller: nameRespController,
                                     ),
                                     MyTextField(
                                       capacity: 12,
                                       name: "Celular",
-                                      controler: numberRespController,
+                                      controller: numberRespController,
                                       mask: phoneFormatter,
                                     ),
                                     MyTextField(
                                       capacity: 14,
                                       name: "CPF",
-                                      controler: cpfRespController,
+                                      controller: cpfRespController,
                                       mask: cpfFormatter,
                                     ),
                                     MyTextField(
                                       capacity: 12,
                                       name: "RG",
-                                      controler: rgRespController,
+                                      controller: rgRespController,
                                       mask: rgFormatter,
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                            Padding(padding: EdgeInsets.only(left: 50, right: 50, top: 10, bottom: 10),
-                                child: TextField(
-                                  keyboardType: TextInputType.multiline,
-                                  maxLength: 500,
-                                  maxLines: null,
-                                  minLines: 3,
-                                  decoration: InputDecoration(
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Colors.purple,
-                                        width: 3.0,
-                                      ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: 50,
+                                right: 50,
+                                top: 10,
+                                bottom: 10,
+                              ),
+                              child: TextField(
+                                keyboardType: TextInputType.multiline,
+                                maxLength: 500,
+                                maxLines: null,
+                                minLines: 3,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.purple,
+                                      width: 3.0,
                                     ),
-                                    labelStyle: TextStyle(color: Colors.black),
-                                    labelText: "Notas",
-                                    border: OutlineInputBorder(),
                                   ),
-                                  controller: notasController,
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  labelText: "Notas",
+                                  border: OutlineInputBorder(),
                                 ),
-                            )
+                                controller: notasController,
+                              ),
+                            ),
                           ],
                         ),
                         // -----------------------------------------------------
@@ -416,12 +507,13 @@ class _CreatePageState extends State<CreatePage> {
                     ),
                   // ------------------------- Button create -------------------
                   Padding(
-                    padding: EdgeInsets.only(bottom: 50, top: 20),
+                    padding: EdgeInsets.only(bottom: 70, top: 40),
                     child: SizedBox(
                       width: 270,
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.purple, width: 3),
+                          backgroundColor: Colors.deepPurpleAccent,
+                          side: BorderSide(color: Colors.deepPurple, width: 3),
                         ),
                         onPressed: () async {
                           final db = Provider.of<AppDatabase>(
@@ -453,7 +545,8 @@ class _CreatePageState extends State<CreatePage> {
                             material: materialController.text,
                             estagio: estagioController.text,
                             inicio: inicioController.text,
-                            notas: notasController.text
+                            notas: notasController.text,
+                            isNotEnrolled: isNotEnrolled
                           );
 
                           if (context.mounted) {
@@ -469,7 +562,7 @@ class _CreatePageState extends State<CreatePage> {
                         },
                         child: Text(
                           "C R I A R",
-                          style: TextStyle(color: Colors.black, fontSize: 30),
+                          style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),

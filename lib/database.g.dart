@@ -116,6 +116,21 @@ class $AlunosTable extends Alunos with TableInfo<$AlunosTable, Aluno> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isNotEnrolledMeta = const VerificationMeta(
+    'isNotEnrolled',
+  );
+  @override
+  late final GeneratedColumn<bool> isNotEnrolled = GeneratedColumn<bool>(
+    'is_not_enrolled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_not_enrolled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -127,6 +142,7 @@ class $AlunosTable extends Alunos with TableInfo<$AlunosTable, Aluno> {
     condition,
     data,
     numero,
+    isNotEnrolled,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -204,6 +220,15 @@ class $AlunosTable extends Alunos with TableInfo<$AlunosTable, Aluno> {
     } else if (isInserting) {
       context.missing(_numeroMeta);
     }
+    if (data.containsKey('is_not_enrolled')) {
+      context.handle(
+        _isNotEnrolledMeta,
+        isNotEnrolled.isAcceptableOrUnknown(
+          data['is_not_enrolled']!,
+          _isNotEnrolledMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -249,6 +274,10 @@ class $AlunosTable extends Alunos with TableInfo<$AlunosTable, Aluno> {
         DriftSqlType.string,
         data['${effectivePrefix}numero'],
       )!,
+      isNotEnrolled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_not_enrolled'],
+      )!,
     );
   }
 
@@ -268,6 +297,7 @@ class Aluno extends DataClass implements Insertable<Aluno> {
   final String condition;
   final String data;
   final String numero;
+  final bool isNotEnrolled;
   const Aluno({
     required this.id,
     required this.nome,
@@ -278,6 +308,7 @@ class Aluno extends DataClass implements Insertable<Aluno> {
     required this.condition,
     required this.data,
     required this.numero,
+    required this.isNotEnrolled,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -291,6 +322,7 @@ class Aluno extends DataClass implements Insertable<Aluno> {
     map['condition'] = Variable<String>(condition);
     map['data'] = Variable<String>(data);
     map['numero'] = Variable<String>(numero);
+    map['is_not_enrolled'] = Variable<bool>(isNotEnrolled);
     return map;
   }
 
@@ -305,6 +337,7 @@ class Aluno extends DataClass implements Insertable<Aluno> {
       condition: Value(condition),
       data: Value(data),
       numero: Value(numero),
+      isNotEnrolled: Value(isNotEnrolled),
     );
   }
 
@@ -323,6 +356,7 @@ class Aluno extends DataClass implements Insertable<Aluno> {
       condition: serializer.fromJson<String>(json['condition']),
       data: serializer.fromJson<String>(json['data']),
       numero: serializer.fromJson<String>(json['numero']),
+      isNotEnrolled: serializer.fromJson<bool>(json['isNotEnrolled']),
     );
   }
   @override
@@ -338,6 +372,7 @@ class Aluno extends DataClass implements Insertable<Aluno> {
       'condition': serializer.toJson<String>(condition),
       'data': serializer.toJson<String>(data),
       'numero': serializer.toJson<String>(numero),
+      'isNotEnrolled': serializer.toJson<bool>(isNotEnrolled),
     };
   }
 
@@ -351,6 +386,7 @@ class Aluno extends DataClass implements Insertable<Aluno> {
     String? condition,
     String? data,
     String? numero,
+    bool? isNotEnrolled,
   }) => Aluno(
     id: id ?? this.id,
     nome: nome ?? this.nome,
@@ -361,6 +397,7 @@ class Aluno extends DataClass implements Insertable<Aluno> {
     condition: condition ?? this.condition,
     data: data ?? this.data,
     numero: numero ?? this.numero,
+    isNotEnrolled: isNotEnrolled ?? this.isNotEnrolled,
   );
   Aluno copyWithCompanion(AlunosCompanion data) {
     return Aluno(
@@ -375,6 +412,9 @@ class Aluno extends DataClass implements Insertable<Aluno> {
       condition: data.condition.present ? data.condition.value : this.condition,
       data: data.data.present ? data.data.value : this.data,
       numero: data.numero.present ? data.numero.value : this.numero,
+      isNotEnrolled: data.isNotEnrolled.present
+          ? data.isNotEnrolled.value
+          : this.isNotEnrolled,
     );
   }
 
@@ -389,7 +429,8 @@ class Aluno extends DataClass implements Insertable<Aluno> {
           ..write('necessidade: $necessidade, ')
           ..write('condition: $condition, ')
           ..write('data: $data, ')
-          ..write('numero: $numero')
+          ..write('numero: $numero, ')
+          ..write('isNotEnrolled: $isNotEnrolled')
           ..write(')'))
         .toString();
   }
@@ -405,6 +446,7 @@ class Aluno extends DataClass implements Insertable<Aluno> {
     condition,
     data,
     numero,
+    isNotEnrolled,
   );
   @override
   bool operator ==(Object other) =>
@@ -418,7 +460,8 @@ class Aluno extends DataClass implements Insertable<Aluno> {
           other.necessidade == this.necessidade &&
           other.condition == this.condition &&
           other.data == this.data &&
-          other.numero == this.numero);
+          other.numero == this.numero &&
+          other.isNotEnrolled == this.isNotEnrolled);
 }
 
 class AlunosCompanion extends UpdateCompanion<Aluno> {
@@ -431,6 +474,7 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
   final Value<String> condition;
   final Value<String> data;
   final Value<String> numero;
+  final Value<bool> isNotEnrolled;
   const AlunosCompanion({
     this.id = const Value.absent(),
     this.nome = const Value.absent(),
@@ -441,6 +485,7 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
     this.condition = const Value.absent(),
     this.data = const Value.absent(),
     this.numero = const Value.absent(),
+    this.isNotEnrolled = const Value.absent(),
   });
   AlunosCompanion.insert({
     this.id = const Value.absent(),
@@ -452,6 +497,7 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
     required String condition,
     required String data,
     required String numero,
+    this.isNotEnrolled = const Value.absent(),
   }) : nome = Value(nome),
        idade = Value(idade),
        condition = Value(condition),
@@ -467,6 +513,7 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
     Expression<String>? condition,
     Expression<String>? data,
     Expression<String>? numero,
+    Expression<bool>? isNotEnrolled,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -478,6 +525,7 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
       if (condition != null) 'condition': condition,
       if (data != null) 'data': data,
       if (numero != null) 'numero': numero,
+      if (isNotEnrolled != null) 'is_not_enrolled': isNotEnrolled,
     });
   }
 
@@ -491,6 +539,7 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
     Value<String>? condition,
     Value<String>? data,
     Value<String>? numero,
+    Value<bool>? isNotEnrolled,
   }) {
     return AlunosCompanion(
       id: id ?? this.id,
@@ -502,6 +551,7 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
       condition: condition ?? this.condition,
       data: data ?? this.data,
       numero: numero ?? this.numero,
+      isNotEnrolled: isNotEnrolled ?? this.isNotEnrolled,
     );
   }
 
@@ -535,6 +585,9 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
     if (numero.present) {
       map['numero'] = Variable<String>(numero.value);
     }
+    if (isNotEnrolled.present) {
+      map['is_not_enrolled'] = Variable<bool>(isNotEnrolled.value);
+    }
     return map;
   }
 
@@ -549,7 +602,8 @@ class AlunosCompanion extends UpdateCompanion<Aluno> {
           ..write('necessidade: $necessidade, ')
           ..write('condition: $condition, ')
           ..write('data: $data, ')
-          ..write('numero: $numero')
+          ..write('numero: $numero, ')
+          ..write('isNotEnrolled: $isNotEnrolled')
           ..write(')'))
         .toString();
   }
@@ -1394,6 +1448,7 @@ typedef $$AlunosTableCreateCompanionBuilder =
       required String condition,
       required String data,
       required String numero,
+      Value<bool> isNotEnrolled,
     });
 typedef $$AlunosTableUpdateCompanionBuilder =
     AlunosCompanion Function({
@@ -1406,6 +1461,7 @@ typedef $$AlunosTableUpdateCompanionBuilder =
       Value<String> condition,
       Value<String> data,
       Value<String> numero,
+      Value<bool> isNotEnrolled,
     });
 
 final class $$AlunosTableReferences
@@ -1482,6 +1538,11 @@ class $$AlunosTableFilterComposer
 
   ColumnFilters<String> get numero => $composableBuilder(
     column: $table.numero,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isNotEnrolled => $composableBuilder(
+    column: $table.isNotEnrolled,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1564,6 +1625,11 @@ class $$AlunosTableOrderingComposer
     column: $table.numero,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isNotEnrolled => $composableBuilder(
+    column: $table.isNotEnrolled,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AlunosTableAnnotationComposer
@@ -1603,6 +1669,11 @@ class $$AlunosTableAnnotationComposer
 
   GeneratedColumn<String> get numero =>
       $composableBuilder(column: $table.numero, builder: (column) => column);
+
+  GeneratedColumn<bool> get isNotEnrolled => $composableBuilder(
+    column: $table.isNotEnrolled,
+    builder: (column) => column,
+  );
 
   Expression<T> alunosDetalhesRefs<T extends Object>(
     Expression<T> Function($$AlunosDetalhesTableAnnotationComposer a) f,
@@ -1667,6 +1738,7 @@ class $$AlunosTableTableManager
                 Value<String> condition = const Value.absent(),
                 Value<String> data = const Value.absent(),
                 Value<String> numero = const Value.absent(),
+                Value<bool> isNotEnrolled = const Value.absent(),
               }) => AlunosCompanion(
                 id: id,
                 nome: nome,
@@ -1677,6 +1749,7 @@ class $$AlunosTableTableManager
                 condition: condition,
                 data: data,
                 numero: numero,
+                isNotEnrolled: isNotEnrolled,
               ),
           createCompanionCallback:
               ({
@@ -1689,6 +1762,7 @@ class $$AlunosTableTableManager
                 required String condition,
                 required String data,
                 required String numero,
+                Value<bool> isNotEnrolled = const Value.absent(),
               }) => AlunosCompanion.insert(
                 id: id,
                 nome: nome,
@@ -1699,6 +1773,7 @@ class $$AlunosTableTableManager
                 condition: condition,
                 data: data,
                 numero: numero,
+                isNotEnrolled: isNotEnrolled,
               ),
           withReferenceMapper: (p0) => p0
               .map(
